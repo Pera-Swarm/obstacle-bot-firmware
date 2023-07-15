@@ -4,6 +4,8 @@
 #include <PID_v1.h>
 #include <Wire.h>
 
+#include "functions/motors.h"
+
 const float turningThresh = 0.15; // threshold to stop turning
 const double distThresh = 20;     // threshold to stop moving
 const int MPU = 0x68;             // MPU6050 I2C address
@@ -48,71 +50,15 @@ double prevDist = 0;
 
 int count = 0; // temp
 
-void ML(int val)
-{ // motor function left(val : speed value)
-
-    // handle overflow in val
-    if (val < -255)
-    {
-        val = -255;
-    }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-
-    if (val > 0) // if the motor speed is positive
-    {
-        digitalWrite(ML_A2, HIGH); // set the motor control signals
-        digitalWrite(ML_A1, LOW);
-        analogWrite(EN_L, val); // give pwm signal to motor enable
-    }
-    else
-    {
-        digitalWrite(ML_A2, LOW); // set the motor control signals
-        digitalWrite(ML_A1, HIGH);
-        analogWrite(EN_L, abs(val)); // give pwm signal to motor enable
-    }
-}
-
-void MR(int val)
-{ // motor function right(val : speed value)
-
-    // handle overflow in val
-    if (val < -255)
-    {
-        val = -255;
-    }
-    else if (val > 255)
-    {
-        val = 255;
-    }
-
-    if (val > 0) // if the motor speed is positive
-    {
-
-        digitalWrite(MR_A1, HIGH); // set the motor control signals
-        digitalWrite(MR_A2, LOW);
-        analogWrite(EN_R, val); // give pwm signal to motor enable
-    }
-    else
-    {
-        digitalWrite(MR_A1, LOW); // set the motor control signals
-        digitalWrite(MR_A2, HIGH);
-        analogWrite(EN_R, abs(val)); // give pwm signal to motor enable
-    }
-}
-
 void LED(byte color)
 {
-    digitalWrite(led_r, color & 1);
-    digitalWrite(led_g, (color >> 1) & 1);
-    digitalWrite(led_b, (color >> 2) & 1);
+    digitalWrite(LED_R, color & 1);
+    digitalWrite(LED_G, (color >> 1) & 1);
+    digitalWrite(LED_B, (color >> 2) & 1);
 }
 
 void pulse(int pulsetime, int time)
 {
-
     digitalWrite(ML_A1, HIGH);
     digitalWrite(ML_A2, LOW);
     digitalWrite(MR_A1, HIGH);
@@ -207,7 +153,6 @@ double radToDegree(double rads)
 
 void turn()
 {
-
     turningDone = false;
     angle = 0;                               // set the current angle to zer0
     Setpoint = -1 * radToDegree(startAngle); // set the setpoint as the startAngle
@@ -236,8 +181,8 @@ void turn()
 
         // Serial.println(String(startAngle) + ", " + String(Setpoint) + ", " + String(Input) + ", " + String(Output) + ", ");
 
-        ML(-Output);
-        MR(Output);
+        motorWrite(-Output, -Output);
+
         if ((-turningThresh < startAngle) && (turningThresh > startAngle)) // exit form the loop if the startAngle is bounded in threshold
         {
             //      Serial.println("turning done");
@@ -246,8 +191,7 @@ void turn()
         LED(0); // off
     }
     angle = 0;
-    ML(0);
-    MR(0);
+    motorWrite(0, 0);
 }
 
 void calculate_IMU_error()
@@ -289,7 +233,6 @@ void calculate_IMU_error()
 
 void intShow()
 {
-
     LED(1); // blue
     pulse(200, 400);
     LED(2); // green
@@ -310,9 +253,9 @@ void setup()
     pinMode(MR_A2, OUTPUT);
     pinMode(ML_A1, OUTPUT);
     pinMode(ML_A2, OUTPUT);
-    pinMode(led_r, OUTPUT);
-    pinMode(led_g, OUTPUT);
-    pinMode(led_b, OUTPUT);
+    pinMode(LED_R, OUTPUT);
+    pinMode(LED_G, OUTPUT);
+    pinMode(LED_B, OUTPUT);
 
     // begining the serial commiunication
 
@@ -346,7 +289,6 @@ void loop()
     }
     if (Serial.available() > 0)
     {
-
         dataDecoder(Serial.read()); // parsing the json string
         LED(0);
     }
@@ -354,7 +296,6 @@ void loop()
     // start turning process if the start angle is above the "turningThresh"
     if ((-turningThresh > startAngle) || (turningThresh < startAngle))
     {
-
         turn();
         LED(0);
     }
@@ -362,12 +303,10 @@ void loop()
     // set the movingDone flag if the robo is at the destination
     if (travelDis < distThresh)
     {
-
         movingDone = true;
     }
     else
     {
-
         movingDone = false;
     }
 
@@ -377,15 +316,13 @@ void loop()
         updateGyro();
         Input = (double)angle;
         myPID.Compute();
-        ML(spd - Output);
-        MR(spd + Output);
+        motorWrite(spd - Output, spd + Output);
     }
     else
     {
         LED(0);
         newData = false;
-        ML(0);
-        MR(0);
+        motorWrite(0, 0);
     }
 
     tcount++;

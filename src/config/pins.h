@@ -14,6 +14,7 @@
 #define MR_A1 3 // right motor in 1
 #define MR_A2 2 // right motor in 2
 
-#define led_r 11 // status leds
-#define led_g 12
-#define led_b 13
+// Status LEDs
+#define LED_R 11
+#define LED_G 12
+#define LED_B 13
