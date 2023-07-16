@@ -4,10 +4,6 @@
 #include <PID_v1.h>
 #include <Wire.h>
 
-#include "functions/motors.h"
-#include "functions/leds.h"
-#include "functions/utility.h"
-
 const float turningThresh = 0.15; // threshold to stop turning
 const double distThresh = 20;     // threshold to stop moving
 const int MPU = 0x68;             // MPU6050 I2C address
@@ -31,6 +27,7 @@ double Setpoint, Input, Output;
 bool newData = false;
 
 // id of the bot
+// TODO: Store this in the EEPROM of the microcontroller
 String myID = "1";
 
 // creating software serial object
