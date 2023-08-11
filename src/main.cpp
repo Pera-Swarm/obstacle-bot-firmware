@@ -4,8 +4,6 @@
 #include <PID_v1.h>
 #include <Wire.h>
 
-#include "functions/motors.h"
-
 const float turningThresh = 0.15; // threshold to stop turning
 const double distThresh = 20;     // threshold to stop moving
 const int MPU = 0x68;             // MPU6050 I2C address
@@ -29,6 +27,7 @@ double Setpoint, Input, Output;
 bool newData = false;
 
 // id of the bot
+// TODO: Store this in the EEPROM of the microcontroller
 String myID = "1";
 
 // creating software serial object
@@ -49,32 +48,6 @@ double dirCorrection = -1;
 double prevDist = 0;
 
 int count = 0; // temp
-
-void LED(byte color)
-{
-    digitalWrite(LED_R, color & 1);
-    digitalWrite(LED_G, (color >> 1) & 1);
-    digitalWrite(LED_B, (color >> 2) & 1);
-}
-
-void pulse(int pulsetime, int time)
-{
-    digitalWrite(ML_A1, HIGH);
-    digitalWrite(ML_A2, LOW);
-    digitalWrite(MR_A1, HIGH);
-    digitalWrite(MR_A2, LOW);
-
-    for (int i = 0; i < time; i++)
-    {
-        digitalWrite(EN_L, HIGH);
-        digitalWrite(EN_R, HIGH);
-        delayMicroseconds(pulsetime / 10);
-
-        digitalWrite(EN_L, LOW);
-        digitalWrite(EN_R, LOW);
-        delayMicroseconds(pulsetime * 9 / 10);
-    }
-}
 
 void updateGyro()
 {
@@ -144,11 +117,6 @@ void dataDecoder(char c)
     {
         dataDecoder(Serial.read());
     }
-}
-
-double radToDegree(double rads)
-{
-    return (float)(rads * 180 / PI);
 }
 
 void turn()
@@ -233,60 +201,19 @@ void calculate_IMU_error()
 
 void intShow()
 {
-    LED(1); // blue
+    LED(COLOR_BLUE);
     pulse(200, 400);
-    LED(2); // green
+    LED(COLOR_GREEN);
     pulse(200, 400);
     pulse(100, 800);
-    LED(4); // red
+    LED(COLOR_RED);
     pulse(200, 200);
-    LED(0);
+    LED(COLOR_NO);
     delay(1000);
-    Serial.begin(9600); // Setting the baud rate of Serial Monitor (Arduino)
 }
 
-void setup()
+void algorithm()
 {
-    pinMode(EN_R, OUTPUT);
-    pinMode(EN_L, OUTPUT);
-    pinMode(MR_A1, OUTPUT);
-    pinMode(MR_A2, OUTPUT);
-    pinMode(ML_A1, OUTPUT);
-    pinMode(ML_A2, OUTPUT);
-    pinMode(LED_R, OUTPUT);
-    pinMode(LED_G, OUTPUT);
-    pinMode(LED_B, OUTPUT);
-
-    // begining the serial commiunication
-
-    myPID.SetOutputLimits(-255, 255); // limits of the PID output
-    myPID.SetSampleTime(20);          // refresh rate of the PID
-    myPID.SetMode(AUTOMATIC);
-    Setpoint = 0;
-
-    calculate_IMU_error(); // calculate the Gyro module error
-    delay(20);
-    //  Serial.println("Bot initiated");
-
-    intShow();
-}
-
-void loop()
-{
-    while (true)
-    {
-        for (int i = 1; i < 8; i++)
-        {
-            LED(i);
-            delay(100);
-            LED(0);
-            delay(100);
-            LED(i);
-            delay(100);
-            LED(0);
-            delay(1000);
-        }
-    }
     if (Serial.available() > 0)
     {
         dataDecoder(Serial.read()); // parsing the json string
@@ -327,4 +254,36 @@ void loop()
 
     tcount++;
     delay(5);
+}
+
+void setup()
+{
+    setup_motors();
+
+    // begining the serial commiunication
+    Serial.begin(9600);
+
+    myPID.SetOutputLimits(-255, 255); // limits of the PID output
+    myPID.SetSampleTime(20);          // refresh rate of the PID
+    myPID.SetMode(AUTOMATIC);
+    Setpoint = 0;
+
+    calculate_IMU_error(); // calculate the Gyro module error
+    delay(20);
+
+    intShow();
+    Serial.println("Bot initiated");
+}
+
+void loop()
+{
+    Serial.println("Loop");
+    motorWrite(100, 100);
+    delay(1500);
+    motorWrite(-100, -100);
+    delay(1500);
+    motorWrite(0, 0);
+    delay(500);
+
+    // algorithm()
 }
