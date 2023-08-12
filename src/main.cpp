@@ -212,6 +212,7 @@ void intShow()
     delay(1000);
 }
 
+
 void algorithm()
 {
     if (Serial.available() > 0)
@@ -277,11 +278,11 @@ void setup()
 
 void loop()
 {
-    Serial.println("Loop");
+    // Serial.println("Loop");
     motorWrite(100, 100);
-    delay(1500);
+    delay(1000);
     motorWrite(-100, -100);
-    delay(1500);
+    delay(1000);
     motorWrite(0, 0);
     delay(500);
 
