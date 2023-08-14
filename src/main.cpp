@@ -1,17 +1,16 @@
 #include "define.h"
 
 #include <Arduino.h>
-#include <PID_v1.h>
-#include <Wire.h>
+
+const int MPU = 0x68;             // MPU6050 I2C address
+float angle;                                  // Gyro angle
+float GyroErrorX;                             // Gyro error
+
+// Gyro configuration
+Gyro gyro(MPU, &angle, &GyroErrorX);
 
 const float turningThresh = 0.15; // threshold to stop turning
 const double distThresh = 20;     // threshold to stop moving
-const int MPU = 0x68;             // MPU6050 I2C address
-float GyroX, GyroY, GyroZ;
-float angle;                                  // Gyro angle
-float GyroErrorX;                             // Gyro error
-float elapsedTime, currentTime, previousTime; // time stamps for gyro calculaions
-int c = 0;
 
 bool idflag = false;
 String id = "";
@@ -26,6 +25,9 @@ double startAngle, endAngle, travelDis;
 double Setpoint, Input, Output;
 bool newData = false;
 
+// PID configuration
+MyPID myPID(&Input, &Output, &Setpoint, 16, 0, 0.23);
+
 // id of the bot
 // TODO: Store this in the EEPROM of the microcontroller
 String myID = "1";
@@ -34,9 +36,6 @@ String myID = "1";
 
 // variables to hold temp data
 String reciveStr = "";
-
-// PID configuration
-PID myPID(&Input, &Output, &Setpoint, 16, 0, 0.23, DIRECT);
 
 bool turningDone = false; // flag true if tuning is done
 bool movingDone = false;  // flag true if robot at the destination
@@ -47,25 +46,6 @@ int tcount = 0;
 double dirCorrection = -1;
 double prevDist = 0;
 
-int count = 0; // temp
-
-void updateGyro()
-{
-    previousTime = currentTime;                        // Previous time is stored before the actual time read
-    currentTime = millis();                            // Current time actual time read
-    elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
-    Wire.beginTransmission(MPU);
-    Wire.write(0x43); // Gyro data first register address 0x43
-    Wire.endTransmission(false);
-    Wire.requestFrom(MPU, 6, true);                   // Read 4 registers total, each axis value is stored in 2 registers
-    GyroX = (Wire.read() << 8 | Wire.read()) / 32.75; // For a 1000deg/s range we have to divide first the raw value by 131.0, according to the datasheet
-    GyroY = (Wire.read() << 8 | Wire.read()) / 131.0;
-    GyroZ = (Wire.read() << 8 | Wire.read()) / 32.75;
-    GyroZ = GyroZ - (-0.25);    // GyroErrorX; // GyroErrorX ~(-0.56)
-
-    angle = angle + GyroZ * elapsedTime; // deg/s * s = deg
-                                         // Serial.println(GyroX);
-}
 
 void dataDecoder(char c)
 {
@@ -147,7 +127,7 @@ void turn()
             prvstartAngle = startAngle;
         }
 
-        updateGyro();
+        gyro.updateGyro();
         Input = (double)angle;
         myPID.Compute();
 
@@ -166,59 +146,6 @@ void turn()
     angle = 0;
     motorWrite(0, 0);
 }
-
-void calculate_IMU_error()
-{
-    // init the gyro0
-    Wire.begin();                // Initialize comunication
-    Wire.beginTransmission(MPU); // Start communication with MPU6050 // MPU=0x68
-    Wire.write(0x6B);            // Talk to 0 register 6B
-    Wire.write(0x00);            // reset
-    Wire.endTransmission(true);
-
-    Wire.beginTransmission(MPU);
-    Wire.write(0x1B); // Talk to the GYRO_CONFIG register (1B hex)
-    Wire.write(0x10); // Set the register bits as 00010000 (1000deg/s full scale)
-    Wire.endTransmission(true);
-    delay(20);
-
-    // initialize c to 0
-    c = 0;
-    // Read gyro values 200 times
-    while (c < 200)
-    {
-        Wire.beginTransmission(MPU);
-        Wire.write(0x43);
-        Wire.endTransmission(false);
-        Wire.requestFrom(MPU, 6, true);
-        GyroX = Wire.read() << 8 | Wire.read();
-        GyroY = Wire.read() << 8 | Wire.read();
-        GyroZ = Wire.read() << 8 | Wire.read();
-        // Sum all readings
-        GyroErrorX = GyroErrorX + (GyroZ / 32.75);
-        c++;
-    }
-    // Divide the sum by 200 to get the error value
-    GyroErrorX = GyroErrorX / 200;
-
-    // Print the error values on the Serial Monitor
-     Serial.print("GyroErrorZ: ");
-     Serial.println(GyroErrorX);
-}
-
-void intShow()
-{
-    LED(COLOR_BLUE);
-    pulse(200, 400);
-    LED(COLOR_GREEN);
-    pulse(200, 400);
-    pulse(100, 800);
-    LED(COLOR_RED);
-    pulse(200, 200);
-    LED(COLOR_NO);
-    delay(1000);
-}
-
 
 void algorithm()
 {
@@ -248,7 +175,7 @@ void algorithm()
     if ((tcount < 40) && turningDone && newData && !movingDone) // run motors with PID if conditions are satisfied
     {
         Setpoint = 0; // set the gyro setpoint to 0
-        updateGyro();
+        gyro.updateGyro();
         Input = (double)angle;
         myPID.Compute();
         motorWrite(spd - Output, spd + Output);
@@ -264,6 +191,7 @@ void algorithm()
     delay(5);
 }
 
+
 void setup()
 {
     setup_motors();
@@ -271,12 +199,9 @@ void setup()
     // begining the serial commiunication
     Serial.begin(9600);
 
-    myPID.SetOutputLimits(-255, 255); // limits of the PID output
-    myPID.SetSampleTime(20);          // refresh rate of the PID
-    myPID.SetMode(AUTOMATIC);
     Setpoint = 0;
 
-    calculate_IMU_error(); // calculate the Gyro module error
+    gyro.calculate_IMU_error(); // calculate the Gyro module error
     delay(20);
 
     intShow();
@@ -293,5 +218,5 @@ void loop()
     // motorWrite(0, 0);
     // delay(500);
 
-    // algorithm()
+    // algorithm();
 }
