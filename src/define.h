@@ -7,7 +7,8 @@
 #include "config/pins.h"
 
 // Implementations
-#include "functions/motors.h"
-#include "functions/leds.h"
+#include "components/motors.h"
+#include "components/leds.h"
+#include "components/gyro.h"
 #include "functions/eeprom.h"
 #include "functions/utility.h"

@@ -61,7 +61,7 @@ void updateGyro()
     GyroX = (Wire.read() << 8 | Wire.read()) / 32.75; // For a 1000deg/s range we have to divide first the raw value by 131.0, according to the datasheet
     GyroY = (Wire.read() << 8 | Wire.read()) / 131.0;
     GyroZ = (Wire.read() << 8 | Wire.read()) / 32.75;
-    GyroZ = GyroZ - (-0.25); // GyroErrorX; // GyroErrorX ~(-0.56)
+    GyroZ = GyroZ - (-0.25);    // GyroErrorX; // GyroErrorX ~(-0.56)
 
     angle = angle + GyroZ * elapsedTime; // deg/s * s = deg
                                          // Serial.println(GyroX);
@@ -83,7 +83,7 @@ void dataDecoder(char c)
             if (good) // if id is good
             {
 
-                arr[idx] = id.toDouble(); // update the arr
+                arr[idx] = +id.toDouble(); // update the arr
                 if (idx == 2)
                 {
                     newData = true; // set the newdata flag
@@ -97,6 +97,7 @@ void dataDecoder(char c)
                 }
                 idx = (idx + 1) % 3; // increment the index
             }
+
             if (idflag) // if id is getting
             {
                 if (id == myID)
@@ -107,12 +108,15 @@ void dataDecoder(char c)
                     LED(0); // blue
                 }
             }
+
             id = "";        // reset the id
             idflag = false; // id reading done`
+
         }
         else
             id += c; // append char to the id
     }
+
     if (Serial.available() > 0)
     {
         dataDecoder(Serial.read());
@@ -127,7 +131,6 @@ void turn()
 
     prvstartAngle = startAngle; // update the prvstartAngle
                                 //  Serial.println("started turning PID " + String(startAngle));
-
     while (!turningDone)
     {
         LED(2); // green
@@ -143,6 +146,7 @@ void turn()
             angle = 0;
             prvstartAngle = startAngle;
         }
+
         updateGyro();
         Input = (double)angle;
         myPID.Compute();
@@ -158,6 +162,7 @@ void turn()
         }
         LED(0); // off
     }
+
     angle = 0;
     motorWrite(0, 0);
 }
@@ -177,6 +182,8 @@ void calculate_IMU_error()
     Wire.endTransmission(true);
     delay(20);
 
+    // initialize c to 0
+    c = 0;
     // Read gyro values 200 times
     while (c < 200)
     {
@@ -195,8 +202,8 @@ void calculate_IMU_error()
     GyroErrorX = GyroErrorX / 200;
 
     // Print the error values on the Serial Monitor
-    //  Serial.print("GyroErrorZ: ");
-    //  Serial.println(GyroErrorX);
+     Serial.print("GyroErrorZ: ");
+     Serial.println(GyroErrorX);
 }
 
 void intShow()
@@ -279,12 +286,12 @@ void setup()
 void loop()
 {
     // Serial.println("Loop");
-    motorWrite(100, 100);
-    delay(1000);
-    motorWrite(-100, -100);
-    delay(1000);
-    motorWrite(0, 0);
-    delay(500);
+    // motorWrite(100, 100);
+    // delay(1000);
+    // motorWrite(-100, -100);
+    // delay(1000);
+    // motorWrite(0, 0);
+    // delay(500);
 
     // algorithm()
 }
