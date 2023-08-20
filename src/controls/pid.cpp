@@ -1,6 +1,7 @@
 #include "pid.h"
 
 MyPID::MyPID(double *input, double *output, double *setpoint, double Kp, double Ki, double Kd){
+    
     this->input = input;
     this->output = output;
     this->setPoint = setpoint;
@@ -17,4 +18,20 @@ MyPID::MyPID(double *input, double *output, double *setpoint, double Kp, double 
 
 bool MyPID::Compute(){
     return this->myPID->Compute();
+}
+
+double MyPID::Compute(double input, double setPoint){
+    return input * setPoint;
+}
+
+void MyPID::setKp(double Kp){
+    this->Kp = Kp;
+}
+
+void MyPID::setKd(double Kd){
+    this->Kd = Kd;
+}
+
+void MyPID::setKi(double Ki){
+    this->Ki = Ki;
 }
