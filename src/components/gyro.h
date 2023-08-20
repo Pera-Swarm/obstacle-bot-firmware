@@ -1,9 +1,8 @@
 #ifndef GYRO_H
 #define GYRO_H
 
-#include "define.h"
-#include <Wire.h>
 #include <Arduino.h>
+#include <Wire.h>
 
 class Gyro
 {
@@ -12,6 +11,7 @@ class Gyro
 
         void updateGyro();
         void calculate_IMU_error();
+        float getAngle();
 
     private:
         int MPU;

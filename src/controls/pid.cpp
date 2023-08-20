@@ -14,6 +14,7 @@ MyPID::MyPID(double *input, double *output, double *setpoint, double Kp, double 
     this->myPID->SetOutputLimits(-255, 255); // limits of the PID output
     this->myPID->SetSampleTime(20);          // refresh rate of the PID
     this->myPID->SetMode(AUTOMATIC);
+
 }
 
 bool MyPID::Compute(){

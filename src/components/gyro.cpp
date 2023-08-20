@@ -67,3 +67,7 @@ void Gyro::calculate_IMU_error(){
     //  Serial.println(*GyroErrorX);
 }
 
+float Gyro::getAngle(){
+    return *angleP;
+}
+

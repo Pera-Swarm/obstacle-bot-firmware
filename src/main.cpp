@@ -1,7 +1,5 @@
 #include "define.h"
 
-#include <Arduino.h>
-
 const int MPU = 0x68;             // MPU6050 I2C address
 float angle;                                  // Gyro angle
 float GyroErrorX;                             // Gyro error
@@ -45,7 +43,6 @@ double spd = 125;         // speed of the movements: [-255, 255]
 int tcount = 0;
 double dirCorrection = -1;
 double prevDist = 0;
-
 
 void dataDecoder(char c)
 {

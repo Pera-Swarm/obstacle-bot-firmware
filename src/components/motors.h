@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "define.h"
 
 void setup_motors();
