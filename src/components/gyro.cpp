@@ -5,18 +5,6 @@ Gyro::Gyro(int MPU, float *angle, float *GyroErrorX){
     this->MPU = MPU;
     this->GyroErrorXP = GyroErrorX;
     this->angleP = angle;
-
-    Wire.begin();                // Initialize comunication
-    Wire.beginTransmission(MPU); // Start communication with MPU6050 // MPU=0x68
-    Wire.write(0x6B);            // Talk to 0 register 6B
-    Wire.write(0x00);            // reset
-    Wire.endTransmission(true);
-
-    Wire.beginTransmission(MPU);
-    Wire.write(0x1B); // Talk to the GYRO_CONFIG register (1B hex)
-    Wire.write(0x10); // Set the register bits as 00010000 (1000deg/s full scale)
-    Wire.endTransmission(true);
-    delay(20);
 }
 
 void Gyro::updateGyro(){
@@ -41,7 +29,18 @@ void Gyro::updateGyro(){
 
 void Gyro::calculate_IMU_error(){
 
+    Wire.begin();                // Initialize comunication
+    Wire.beginTransmission(MPU); // Start communication with MPU6050 // MPU=0x68
+    Wire.write(0x6B);            // Talk to 0 register 6B
+    Wire.write(0x00);            // reset
+    Wire.endTransmission(true);
+
+    Wire.beginTransmission(MPU);
+    Wire.write(0x1B); // Talk to the GYRO_CONFIG register (1B hex)
+    Wire.write(0x10); // Set the register bits as 00010000 (1000deg/s full scale)
+    Wire.endTransmission(true);
     delay(20);
+    
     // initialize c to 0
     c = 0;
     // Read gyro values 200 times
