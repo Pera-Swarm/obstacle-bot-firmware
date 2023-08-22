@@ -8,10 +8,12 @@
 // pin map
 #include "config/pins.h"
 
+// PID 
+#include <PID_v1.h>
+
 // Implementations
 #include "components/motors.h"
 #include "components/leds.h"
-#include "controls/pid.h"
 #include "functions/eeprom.h"
 #include "functions/utility.h"
 #include "components/gyro.h"

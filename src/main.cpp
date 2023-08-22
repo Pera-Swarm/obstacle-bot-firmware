@@ -1,5 +1,8 @@
 #include "define.h"
 
+// create Motor instance
+Motor motor;
+
 const int MPU = 0x68;             // MPU6050 I2C address
 float angle;                                  // Gyro angle
 float GyroErrorX;                             // Gyro error
@@ -24,7 +27,7 @@ double Setpoint, Input, Output;
 bool newData = false;
 
 // PID configuration
-MyPID myPID(&Input, &Output, &Setpoint, 16, 0, 0.23);
+PID pid(&Input, &Output, &Setpoint, 16, 0, 0.23, DIRECT);
 
 // id of the bot
 // TODO: Store this in the EEPROM of the microcontroller
@@ -126,11 +129,11 @@ void turn()
 
         gyro.updateGyro();
         Input = (double)angle;
-        myPID.Compute();
+        pid.Compute();
 
         // Serial.println(String(startAngle) + ", " + String(Setpoint) + ", " + String(Input) + ", " + String(Output) + ", ");
 
-        motorWrite(-Output, -Output);
+        motor.motorWrite(-Output, -Output);
 
         if ((-turningThresh < startAngle) && (turningThresh > startAngle)) // exit form the loop if the startAngle is bounded in threshold
         {
@@ -141,7 +144,7 @@ void turn()
     }
 
     angle = 0;
-    motorWrite(0, 0);
+    motor.motorWrite(0, 0);
 }
 
 void algorithm()
@@ -174,14 +177,14 @@ void algorithm()
         Setpoint = 0; // set the gyro setpoint to 0
         gyro.updateGyro();
         Input = (double)angle;
-        myPID.Compute();
-        motorWrite(spd - Output, spd + Output);
+        pid.Compute();
+        motor.motorWrite(spd - Output, spd + Output);
     }
     else
     {
         LED(0);
         newData = false;
-        motorWrite(0, 0);
+        motor.motorWrite(0, 0);
     }
 
     tcount++;
@@ -191,7 +194,11 @@ void algorithm()
 
 void setup()
 {
-    setup_motors();
+    pid.SetOutputLimits(-255, 255); // limits of the PID output
+    pid.SetSampleTime(20);          // refresh rate of the PID
+    pid.SetMode(AUTOMATIC);
+
+    motor.setup_motors();
 
     // begining the serial commiunication
     Serial.begin(9600);
@@ -208,11 +215,11 @@ void setup()
 void loop()
 {
     // Serial.println("Loop");
-    // motorWrite(100, 100);
+    // motor.motorWrite(100, 100);
     // delay(1000);
-    // motorWrite(-100, -100);
+    // motor.motorWrite(-100, -100);
     // delay(1000);
-    // motorWrite(0, 0);
+    // motor.motorWrite(0, 0);
     // delay(500);
 
     // algorithm();

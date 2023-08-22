@@ -1,7 +1,17 @@
 #include "motors.h"
 
-void setup_motors()
+Motor::Motor(){
+
+}
+
+void Motor::setup_motors()
 {
+    this->pid = &PID(&input, &output, &setPoint, 16, 0, 0.23, DIRECT);
+
+    this->pid->SetOutputLimits(-255, 255); // limits of the PID output
+    this->pid->SetSampleTime(20);          // refresh rate of the PID
+    this->pid->SetMode(AUTOMATIC);
+
     pinMode(EN_R, OUTPUT);
     pinMode(EN_L, OUTPUT);
     pinMode(MR_A1, OUTPUT);
@@ -10,8 +20,9 @@ void setup_motors()
     pinMode(ML_A2, OUTPUT);
 }
 
+
 // motor function left(val : speed value)
-void ML(int8_t val)
+void Motor::ML(int8_t val)
 {
     val = constrain(val, -255, 255);
 
@@ -23,7 +34,7 @@ void ML(int8_t val)
 }
 
 // motor function right(val : speed value)
-void MR(int8_t val)
+void Motor::MR(int8_t val)
 {
     val = constrain(val, -255, 255);
 
@@ -34,8 +45,28 @@ void MR(int8_t val)
     Serial.println(val);
 }
 
-void motorWrite(int8_t leftSpeed, int8_t rightSpeed)
+void Motor::motorWrite(int8_t leftSpeed, int8_t rightSpeed)
 {
+    // if (leftSpeed == rightSpeed){
+
+    //     if (!goingStraight)
+    //         setPoint = (double)gyro.getAngle();
+    //     else 
+    //         goingStraight = true;
+
+    //     gyro.updateGyro();
+    //     input = (double)gyro.getAngle();
+
+    //     pid->Compute();
+        
+    //     ML(leftSpeed + output);
+    //     MR(rightSpeed + output);
+
+    //     return;
+    // } else {
+    //     goingStraight = false;
+    // }
+
     ML(leftSpeed);
     MR(rightSpeed);
 }

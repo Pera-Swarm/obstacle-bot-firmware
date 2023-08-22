@@ -1,5 +1,5 @@
-#include <EEPROM.h>
 #include "define.h"
+#include <EEPROM.h>
 
 #define EEPROM_ADDRESS_MIN 0
 #define EEPROM_ADDRESS_MAX 1023

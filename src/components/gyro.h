@@ -19,7 +19,6 @@ class Gyro
         float *angleP;                                  // Gyro angle
         float GyroX, GyroY, GyroZ;
         float elapsedTime, currentTime, previousTime; // time stamps for gyro calculaions
-        int c = 0; // temp
 
 };
 
