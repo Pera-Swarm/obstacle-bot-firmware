@@ -3,6 +3,11 @@
 
 #include "define.h"
 
+#define KP 16
+#define KI 0
+#define KD 0.23
+#define SET_TIME 20
+
 class Motor
 {
     public:
@@ -17,7 +22,7 @@ class Motor
     private:
         bool goingStraight = false;
         double setPoint, input, output;
-        PID *pid;
+        PID pid = PID(&input, &output, &setPoint, KP, KI, KD, DIRECT);
        
 };
 

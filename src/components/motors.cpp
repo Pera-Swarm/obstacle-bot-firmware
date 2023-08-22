@@ -6,11 +6,9 @@ Motor::Motor(){
 
 void Motor::setup_motors()
 {
-    this->pid = &PID(&input, &output, &setPoint, 16, 0, 0.23, DIRECT);
-
-    this->pid->SetOutputLimits(-255, 255); // limits of the PID output
-    this->pid->SetSampleTime(20);          // refresh rate of the PID
-    this->pid->SetMode(AUTOMATIC);
+    pid.SetOutputLimits(-255, 255); // limits of the PID output
+    pid.SetSampleTime(SET_TIME);          // refresh rate of the PID
+    pid.SetMode(AUTOMATIC);
 
     pinMode(EN_R, OUTPUT);
     pinMode(EN_L, OUTPUT);
