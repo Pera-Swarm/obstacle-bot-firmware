@@ -18,4 +18,4 @@
 #include "functions/utility.h"
 #include "components/gyro.h"
 
-// extern Gyro gyro;
+extern Gyro gyro;

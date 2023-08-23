@@ -213,13 +213,7 @@ void setup()
 void loop()
 {
     Serial.println("Loop");
-    // motorWrite(100, 100);
-    // delay(5000);
-    // motorWrite(-100, -100);
-    // delay(5000);
-    // motorWrite(0, 0);
     delay(500);
-    // Serial.println("Loop");
     // motor.motorWrite(100, 100);
     // delay(1000);
     // motor.motorWrite(-100, -100);
