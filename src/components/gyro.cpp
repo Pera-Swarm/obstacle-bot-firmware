@@ -46,7 +46,7 @@ void Gyro::calculate_IMU_error()
     delay(20);
 
     // initialize c to 0
-    c = 0;
+    int c = 0;
     // Read gyro values 200 times
     while (c < 200)
     {
