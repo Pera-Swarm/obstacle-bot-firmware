@@ -1,13 +1,13 @@
 #include "motors.h"
 
-Motor::Motor(){
-
+Motor::Motor()
+{
 }
 
 void Motor::setup_motors()
 {
     pid.SetOutputLimits(-255, 255); // limits of the PID output
-    pid.SetSampleTime(SET_TIME);          // refresh rate of the PID
+    pid.SetSampleTime(SET_TIME);    // refresh rate of the PID
     pid.SetMode(AUTOMATIC);
 
     pinMode(EN_R, OUTPUT);
@@ -17,7 +17,6 @@ void Motor::setup_motors()
     pinMode(ML_A1, OUTPUT);
     pinMode(ML_A2, OUTPUT);
 }
-
 
 // motor function left(val : speed value)
 void Motor::ML(int8_t val)
@@ -45,25 +44,32 @@ void Motor::MR(int8_t val)
 
 void Motor::motorWrite(int8_t leftSpeed, int8_t rightSpeed)
 {
-    // if (leftSpeed == rightSpeed){
+    if (leftSpeed == rightSpeed)
+    {
 
-    //     if (!goingStraight)
-    //         setPoint = (double)gyro.getAngle();
-    //     else 
-    //         goingStraight = true;
+        if (!goingStraight)
+        {
+            gyro.updateGyro();
+            setPoint = (double)gyro.getAngle();
+            goingStraight = true;
+        }
+        else
+            goingStraight = true;
 
-    //     gyro.updateGyro();
-    //     input = (double)gyro.getAngle();
+                gyro.updateGyro();
+        input = (double)gyro.getAngle();
 
-    //     pid->Compute();
-        
-    //     ML(leftSpeed + output);
-    //     MR(rightSpeed + output);
+        pid.Compute();
 
-    //     return;
-    // } else {
-    //     goingStraight = false;
-    // }
+        ML(leftSpeed + output);
+        MR(rightSpeed + output);
+
+        return;
+    }
+    else
+    {
+        goingStraight = false;
+    }
 
     ML(leftSpeed);
     MR(rightSpeed);

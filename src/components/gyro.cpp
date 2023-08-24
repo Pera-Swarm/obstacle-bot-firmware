@@ -24,10 +24,11 @@ void Gyro::updateGyro()
     GyroZ = (Wire.read() << 8 | Wire.read()) / 32.75;
     GyroZ = GyroZ - (-0.25) + *GyroErrorXP; // GyroErrorX; // GyroErrorX ~(-0.56)
 
-    kalmanUpdate(GyroZ, GyroY);
     *angleP = *angleP + GyroZ * elapsedTime; // deg/s * s = deg
+    float newAngle = *angleP;
+    kalmanUpdate(newAngle, GyroY);
 
-    Serial.println(GyroX);
+    Serial.println(*angleP);
 }
 
 void Gyro::calculate_IMU_error()
