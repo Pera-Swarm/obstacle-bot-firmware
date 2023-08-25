@@ -24,11 +24,13 @@ void Gyro::updateGyro()
     GyroZ = (Wire.read() << 8 | Wire.read()) / 32.75;
     GyroZ = GyroZ - (-0.25) + *GyroErrorXP; // GyroErrorX; // GyroErrorX ~(-0.56)
 
-    *angleP = *angleP + GyroZ * elapsedTime; // deg/s * s = deg
-    float newAngle = *angleP;
-    kalmanUpdate(newAngle, GyroY);
+    // *angleP = *angleP + GyroZ * elapsedTime;
 
-    Serial.println(*angleP);
+    // deg/s * s = deg
+    float newAngle = *angleP + GyroZ * elapsedTime;
+    kalmanUpdate(newAngle, GyroZ);
+
+    // Serial.println(*angleP);
 }
 
 void Gyro::calculate_IMU_error()
@@ -89,7 +91,7 @@ void Gyro::kalmanUpdate(float newAngle, float newRate)
     P[1][1] += Q[1][1] * elapsedTime;
 
     // Update step
-    S = P[0][0] + 50;
+    S = P[0][0] + 30;
     K[0] = P[0][0] / S;
     K[1] = P[1][0] / S;
 

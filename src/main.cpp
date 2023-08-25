@@ -212,15 +212,16 @@ void setup()
 
 void loop()
 {
-    Serial.println("Loop");
-    delay(500);
+    // Serial.println("Loop");
     motor.motorWrite(100, 100);
-    delay(5000);
-    motor.motorWrite(-100, -100);
-    delay(5000);
-    motor.motorWrite(0, 0);
-    delay(500);
+    delay(100);
+    // delay(5000);
+    // motor.motorWrite(-100, -100);
+    // delay(5000);
+    // motor.motorWrite(0, 0);
+    // delay(500);
 
-    Serial.println("Kalman angle");
-    Serial.println(gyro.getAngle());
+    // gyro.updateGyro();
+    // Serial.print("Kalman angle :");
+    // Serial.println(gyro.getAngle());
 }

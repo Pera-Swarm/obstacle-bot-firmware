@@ -23,10 +23,10 @@ private:
     int c = 0;                                    // temp
 
     // Kalman filter variables
-    float kalmanAngle;
-    float bias;
-    float P[2][2]; // Covariance matrix
-    float Q[2][2]; // Process noise matrix
+    float kalmanAngle = 0;
+    float bias = 0;
+    float P[2][2] = {0}; // Covariance matrix
+    float Q[2][2] = {0}; // Process noise matrix
 };
 
 #endif

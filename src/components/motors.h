@@ -3,9 +3,9 @@
 
 #include "define.h"
 
-#define KP 16
-#define KI 0
-#define KD 0.23
+#define KP 0.6
+#define KI 0.01
+#define KD 0.01
 #define SET_TIME 20
 
 class Motor
@@ -14,8 +14,8 @@ class Motor
         Motor();
         void setup_motors();
 
-        void ML(int8_t val);
-        void MR(int8_t val);
+        void ML(int16_t val);
+        void MR(int16_t val);
 
         void motorWrite(int8_t leftSpeed, int8_t rightSpeed);
 

@@ -19,7 +19,7 @@ void Motor::setup_motors()
 }
 
 // motor function left(val : speed value)
-void Motor::ML(int8_t val)
+void Motor::ML(int16_t val)
 {
     val = constrain(val, -255, 255);
 
@@ -27,11 +27,12 @@ void Motor::ML(int8_t val)
     digitalWrite(ML_A2, (val > 0) ? LOW : HIGH);
     analogWrite(EN_L, abs(val));
 
-    Serial.println(val);
+    Serial.print(" | >>>>>> ");
+    Serial.print(val);
 }
 
 // motor function right(val : speed value)
-void Motor::MR(int8_t val)
+void Motor::MR(int16_t val)
 {
     val = constrain(val, -255, 255);
 
@@ -39,11 +40,14 @@ void Motor::MR(int8_t val)
     digitalWrite(MR_A2, (val > 0) ? LOW : HIGH);
     analogWrite(EN_R, abs(val)); // give pwm signal to motor enable
 
+    
+    Serial.print(" | >>>>>> ");
     Serial.println(val);
 }
 
 void Motor::motorWrite(int8_t leftSpeed, int8_t rightSpeed)
 {
+
     if (leftSpeed == rightSpeed)
     {
 
@@ -56,12 +60,24 @@ void Motor::motorWrite(int8_t leftSpeed, int8_t rightSpeed)
         else
             goingStraight = true;
 
-                gyro.updateGyro();
+        gyro.updateGyro();
         input = (double)gyro.getAngle();
 
         pid.Compute();
 
-        ML(leftSpeed + output);
+        Serial.print("> ");
+        Serial.print(setPoint);
+        Serial.print(" >> ");
+        Serial.print(input);
+        Serial.print(" >>>> ");
+        Serial.print(output);
+        Serial.print(" >>>>>> ");
+        Serial.print(leftSpeed - output);
+        Serial.print(" >>>>>> ");
+        Serial.print(rightSpeed + output);
+
+
+        ML(leftSpeed - output);
         MR(rightSpeed + output);
 
         return;
