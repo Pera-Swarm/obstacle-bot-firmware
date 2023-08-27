@@ -14,21 +14,41 @@ void Gyro::updateGyro()
     currentTime = millis();                            // Current time actual time read
     elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
 
-    Wire.beginTransmission(MPU);
-    Wire.write(0x43); // Gyro data first register address 0x43
-    Wire.endTransmission(false);
-    Wire.requestFrom(MPU, 6, true); // Read 4 registers total, each axis value is stored in 2 registers
+    float AvgGyroZ = 0;
 
-    GyroX = (Wire.read() << 8 | Wire.read()) / 32.75; // For a 1000deg/s range we have to divide first the raw value by 131.0, according to the datasheet
-    GyroY = (Wire.read() << 8 | Wire.read()) / 131.0;
-    GyroZ = (Wire.read() << 8 | Wire.read()) / 32.75;
-    GyroZ = GyroZ - (-0.25) + *GyroErrorXP; // GyroErrorX; // GyroErrorX ~(-0.56)
+    for (int i=0; i<10;i++){
 
+        Wire.beginTransmission(MPU);
+        Wire.write(0x43); // Gyro data first register address 0x43
+        Wire.endTransmission(false);
+        Wire.requestFrom(MPU, 6, true); // Read 4 registers total, each axis value is stored in 2 registers
+
+        GyroX = (Wire.read() << 8 | Wire.read()) / 32.75; // For a 1000deg/s range we have to divide first the raw value by 131.0, according to the datasheet
+        GyroY = (Wire.read() << 8 | Wire.read()) / 131.0;
+        GyroZ = (Wire.read() << 8 | Wire.read()) / 32.75;
+
+        AvgGyroZ += GyroZ;
+
+    }
+
+    GyroZ = AvgGyroZ/10;
+
+    // Serial.print(">> ");
+    // Serial.print(GyroZ);
+    // Serial.print(" >> | ");
+
+    GyroZ = GyroZ - *GyroErrorXP ; // GyroErrorX; // GyroErrorX ~(-0.56)
+
+    // Serial.print(">>>> ");
+    // Serial.print(GyroZ);
+    // Serial.print(" >> ");
     // *angleP = *angleP + GyroZ * elapsedTime;
 
     // deg/s * s = deg
     float newAngle = *angleP + GyroZ * elapsedTime;
-    kalmanUpdate(newAngle, GyroZ);
+    *angleP = newAngle;
+
+    // kalmanUpdate(newAngle, GyroZ);
 
     // Serial.println(*angleP);
 }
@@ -51,7 +71,7 @@ void Gyro::calculate_IMU_error()
     // initialize c to 0
     int c = 0;
     // Read gyro values 200 times
-    while (c < 200)
+    while (c < 500)
     {
         Wire.beginTransmission(MPU);
         Wire.write(0x43);
@@ -60,17 +80,19 @@ void Gyro::calculate_IMU_error()
         GyroX = Wire.read() << 8 | Wire.read();
         GyroY = Wire.read() << 8 | Wire.read();
         GyroZ = Wire.read() << 8 | Wire.read();
+
         // Sum all readings
         *GyroErrorXP = *GyroErrorXP + (GyroZ / 32.75);
         c++;
+
     }
 
     // Divide the sum by 200 to get the error value
-    *GyroErrorXP = *GyroErrorXP / 200;
+    *GyroErrorXP = *GyroErrorXP / 500;
 
     // Print the error values on the Serial Monitor
-    //  Serial.print("GyroErrorZ: ");
-    //  Serial.println(*GyroErrorX);
+     Serial.print("GyroErrorZ: ");
+     Serial.println(*GyroErrorXP);
 }
 
 float Gyro::getAngle()

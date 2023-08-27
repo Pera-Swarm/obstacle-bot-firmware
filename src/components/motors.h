@@ -3,7 +3,7 @@
 
 #include "define.h"
 
-#define KP 0.6
+#define KP 0.8
 #define KI 0.01
 #define KD 0.01
 #define SET_TIME 20
