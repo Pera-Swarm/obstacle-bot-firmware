@@ -4,14 +4,21 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+// define the number of iterations 
+#define AVGINTER 10
+#define ERRORINTER 500
+
+// Gyro class
+// contains the basic functions with MPU6050
 class Gyro
 {
+
 public:
     Gyro(int MPU, float *angle, float *GyroErrorX);
 
-    void updateGyro();
-    void calculate_IMU_error();
-    float getAngle();
+    void updateGyro();  // update the angle
+    void calculate_IMU_error(); // calculate the error in yaw
+    float getAngle();   // return the angle
     void kalmanUpdate(float newAngle, float newRate);
 
 private:

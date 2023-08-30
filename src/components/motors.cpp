@@ -7,7 +7,7 @@ Motor::Motor()
 void Motor::setup_motors()
 {
     pid.SetOutputLimits(-255, 255); // limits of the PID output
-    pid.SetSampleTime(SET_TIME);    // refresh rate of the PID
+    pid.SetSampleTime(SET_TIME_FOWARD);    // refresh rate of the PID
     pid.SetMode(AUTOMATIC);
 
     pinMode(EN_R, OUTPUT);
@@ -50,20 +50,7 @@ void Motor::motorWrite(int8_t leftSpeed, int8_t rightSpeed)
 
     if (leftSpeed == rightSpeed)
     {
-
-        if (!goingStraight)
-        {
-            gyro.updateGyro();
-            setPoint = (double)gyro.getAngle();
-            goingStraight = true;
-        }
-        else
-            goingStraight = true;
-
-        gyro.updateGyro();
-        input = (double)gyro.getAngle();
-
-        pid.Compute();
+        updateOutput();
 
         Serial.print("> ");
         Serial.print(setPoint);
@@ -75,7 +62,6 @@ void Motor::motorWrite(int8_t leftSpeed, int8_t rightSpeed)
         Serial.print(leftSpeed - output);
         Serial.print(" >>>>>> ");
         Serial.print(rightSpeed + output);
-
 
         ML(leftSpeed - output);
         MR(rightSpeed + output);
@@ -89,6 +75,24 @@ void Motor::motorWrite(int8_t leftSpeed, int8_t rightSpeed)
 
     ML(leftSpeed);
     MR(rightSpeed);
+}
+
+double Motor::updateOutput(){
+
+    if (!goingStraight)
+    {
+        gyro.updateGyro();
+        setPoint = (double)gyro.getAngle();
+        goingStraight = true;
+    }
+    else
+        goingStraight = true;
+
+    gyro.updateGyro();
+    input = (double)gyro.getAngle();
+
+    pid.Compute();
+
 }
 
 void pulse(int pulsetime, int time)

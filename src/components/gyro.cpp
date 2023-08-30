@@ -14,9 +14,9 @@ void Gyro::updateGyro()
     currentTime = millis();                            // Current time actual time read
     elapsedTime = (currentTime - previousTime) / 1000; // Divide by 1000 to get seconds
 
+    // get the angle as a avg value
     float AvgGyroZ = 0;
-
-    for (int i=0; i<10;i++){
+    for (int i=0; i<AVGINTER;i++){
 
         Wire.beginTransmission(MPU);
         Wire.write(0x43); // Gyro data first register address 0x43
@@ -30,8 +30,7 @@ void Gyro::updateGyro()
         AvgGyroZ += GyroZ;
 
     }
-
-    GyroZ = AvgGyroZ/10;
+    GyroZ = AvgGyroZ/AVGINTER;
 
     // Serial.print(">> ");
     // Serial.print(GyroZ);
@@ -71,7 +70,7 @@ void Gyro::calculate_IMU_error()
     // initialize c to 0
     int c = 0;
     // Read gyro values 200 times
-    while (c < 500)
+    while (c < ERRORINTER)
     {
         Wire.beginTransmission(MPU);
         Wire.write(0x43);
@@ -88,7 +87,7 @@ void Gyro::calculate_IMU_error()
     }
 
     // Divide the sum by 200 to get the error value
-    *GyroErrorXP = *GyroErrorXP / 500;
+    *GyroErrorXP = *GyroErrorXP / ERRORINTER;
 
     // Print the error values on the Serial Monitor
      Serial.print("GyroErrorZ: ");
