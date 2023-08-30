@@ -32,16 +32,7 @@ void Gyro::updateGyro()
     }
     GyroZ = AvgGyroZ/AVGINTER;
 
-    // Serial.print(">> ");
-    // Serial.print(GyroZ);
-    // Serial.print(" >> | ");
-
     GyroZ = GyroZ - *GyroErrorXP ; // GyroErrorX; // GyroErrorX ~(-0.56)
-
-    // Serial.print(">>>> ");
-    // Serial.print(GyroZ);
-    // Serial.print(" >> ");
-    // *angleP = *angleP + GyroZ * elapsedTime;
 
     // deg/s * s = deg
     float newAngle = *angleP + GyroZ * elapsedTime;
@@ -49,7 +40,6 @@ void Gyro::updateGyro()
 
     // kalmanUpdate(newAngle, GyroZ);
 
-    // Serial.println(*angleP);
 }
 
 void Gyro::calculate_IMU_error()
