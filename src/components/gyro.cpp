@@ -30,15 +30,13 @@ void Gyro::updateGyro()
         AvgGyroZ += GyroZ;
 
     }
+    // to get the avg value
     GyroZ = AvgGyroZ/AVGINTER;
 
     GyroZ = GyroZ - *GyroErrorXP ; // GyroErrorX; // GyroErrorX ~(-0.56)
 
     // deg/s * s = deg
-    float newAngle = *angleP + GyroZ * elapsedTime;
-    *angleP = newAngle;
-
-    // kalmanUpdate(newAngle, GyroZ);
+    *angleP  = *angleP + GyroZ * elapsedTime;
 
 }
 
@@ -76,41 +74,15 @@ void Gyro::calculate_IMU_error()
 
     }
 
-    // Divide the sum by 200 to get the error value
+    // Divide the sum by ERRORINTER to get the error value
     *GyroErrorXP = *GyroErrorXP / ERRORINTER;
 
     // Print the error values on the Serial Monitor
-     Serial.print("GyroErrorZ: ");
-     Serial.println(*GyroErrorXP);
+    //  Serial.print("GyroErrorZ: ");
+    //  Serial.println(*GyroErrorXP);
 }
 
 float Gyro::getAngle()
 {
     return *angleP;
-}
-
-// Kalman filter update
-void Gyro::kalmanUpdate(float newAngle, float newRate)
-{
-    float S, K[2];
-
-    // Prediction step
-    *angleP += elapsedTime * (newRate - bias);
-    P[0][0] += elapsedTime * (elapsedTime * P[1][1] - P[0][1] - P[1][0] + Q[0][0]);
-    P[0][1] -= elapsedTime * P[1][1];
-    P[1][0] -= elapsedTime * P[1][1];
-    P[1][1] += Q[1][1] * elapsedTime;
-
-    // Update step
-    S = P[0][0] + 30;
-    K[0] = P[0][0] / S;
-    K[1] = P[1][0] / S;
-
-    *angleP += K[0] * (newAngle - *angleP);
-    bias += K[1] * (newAngle - *angleP);
-
-    P[0][0] -= K[0] * P[0][0];
-    P[0][1] -= K[0] * P[0][1];
-    P[1][0] -= K[1] * P[0][0];
-    P[1][1] -= K[1] * P[0][1];
 }
