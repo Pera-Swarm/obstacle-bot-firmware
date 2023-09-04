@@ -65,7 +65,7 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
     MR(rightSpeed);
 }
 
-// update the output variable 
+// update the output variable
 // update the angle and use it with pid
 void Motor::updateOutput()
 {
@@ -98,6 +98,7 @@ void Motor::tunning(int16_t leftSpeed, int16_t rightSpeed)
     pid.SetTunings(kp, ki, kd);
 }
 
+// store the pid_const in EEPROM
 bool Motor::setPidConstToEeprom(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward)
 {
     pid_const.KP_FOWARD = kpForward;
@@ -111,6 +112,7 @@ bool Motor::setPidConstToEeprom(double kpForward, double kiForward, double kdFor
     return eeprom_write_struct(ADDRESS, pid_const);
 }
 
+// get the pid_const from EEPROM
 bool Motor::getPidConstFromEerprom()
 {
     return eeprom_read_struct(ADDRESS, pid_const);
