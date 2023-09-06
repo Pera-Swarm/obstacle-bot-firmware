@@ -63,7 +63,7 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
 
 // update the output variable 
 // update the angle and use it with pid
-double Motor::updateOutput(){
+void Motor::updateOutput(){
 
     if (!goingStraight)
     {
