@@ -214,6 +214,8 @@ void loop()
 {
     // Serial.println("Loop");
     motor.motorWrite(80, 80);
-    delay(10);
+    delay(5000);
+    motor.motorWrite(-80,-80);
+    delay(5000);
 
 }
