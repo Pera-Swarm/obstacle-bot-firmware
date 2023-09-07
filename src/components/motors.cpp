@@ -65,7 +65,7 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
     MR(rightSpeed);
 }
 
-// update the output variable 
+// update the output variable
 // update the angle and use it with pid
 void Motor::updateOutput()
 {
@@ -132,5 +132,28 @@ void pulse(int pulsetime, int time)
         digitalWrite(EN_L, LOW);
         digitalWrite(EN_R, LOW);
         delayMicroseconds(pulsetime * 9 / 10);
+    }
+}
+
+void Motor::turnright()
+{
+    tunning(20, -20);
+
+    if (goingStraight)
+    {
+        gyro.updateGyro();
+        setPoint = (double)gyro.getAngle() + 90;
+        goingStraight = false;
+    }
+
+    while (output != 0)
+    {
+        gyro.updateGyro();
+        input = (double)gyro.getAngle();
+
+        pid.Compute();
+
+        ML(20 + output);
+        MR(-20 - output);
     }
 }
