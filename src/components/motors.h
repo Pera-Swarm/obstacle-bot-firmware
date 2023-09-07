@@ -35,6 +35,7 @@ public:
 
     void updateOutput();                                 // update to output respect to the angle error and const
     void tunning(int16_t leftSpeed, int16_t rightSpeed); // tune the Kp, KI and Kd
+    void turnright();                                    // turn 90 degrees to the right
 
     bool setPidConstToEeprom(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward); // update the pid const in eeprom
     bool getPidConstFromEerprom();                                                                                                                   // get the pid const from eeprom
