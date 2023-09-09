@@ -11,7 +11,7 @@ void Motor::setup_motors()
     pid.SetMode(AUTOMATIC);
 
     // set the eerpom
-    // setPidConstToEeprom(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
+    setPidConstToEeprom(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
 
     // update the pid values from eeprom
     getPidConstFromEerprom();
@@ -137,24 +137,33 @@ void pulse(int pulsetime, int time)
 
 void Motor::turnright()
 {
-    tunning(20, -20);
+    tunning(20, 20);
+    double startangle = (double)gyro.getAngle();
 
     if (goingStraight)
     {
         gyro.updateGyro();
-        setPoint = (double)gyro.getAngle() + 90;
+        setPoint = startangle + 90;
         goingStraight = false;
     }
 
     while (output != 0)
     {
+
+        if(setPoint-startangle<1.0 && setPoint-startangle>1.0){
+            ML(0);
+            MR(0);
+            break;
+        }   
+
         gyro.updateGyro();
         input = (double)gyro.getAngle();
 
         pid.Compute();
 
-        ML(20 + output);
-        MR(-20 - output);
+        ML(output);
+        MR(- output);
+        
     }
-    return;
+    
 }

@@ -212,11 +212,12 @@ void setup()
 
 void loop()
 {
-    // Serial.println("Loop");
+    Serial.println("Loop");
     unsigned long startTime = millis();
 
     while (millis() - startTime < 2000)
     {
+        Serial.println("inside while loop");
         motor.motorWrite(80, 80);
         delay(10);
         /* code */
