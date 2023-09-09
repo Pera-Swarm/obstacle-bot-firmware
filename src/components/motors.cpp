@@ -156,4 +156,5 @@ void Motor::turnright()
         ML(20 + output);
         MR(-20 - output);
     }
+    return;
 }
