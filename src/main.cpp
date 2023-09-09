@@ -213,7 +213,20 @@ void setup()
 void loop()
 {
     // Serial.println("Loop");
-    motor.motorWrite(80, 80);
-    delay(10);
+    unsigned long startTime = millis();
 
+    while (millis() - startTime < 2000)
+    {
+        motor.motorWrite(80, 80);
+        delay(10);
+        /* code */
+    }
+
+    motor.turnright();
+
+    while (millis() < startTime + 5000)
+    {
+        motor.motorWrite(80, 80);
+        /* code */
+    }
 }
