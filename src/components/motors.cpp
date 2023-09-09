@@ -11,7 +11,7 @@ void Motor::setup_motors()
     pid.SetMode(AUTOMATIC);
 
     // set the eerpom
-    // setPidConstToEeprom(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
+    setPidConstToEeprom(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
 
     // update the pid values from eeprom
     getPidConstFromEerprom();
