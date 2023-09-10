@@ -70,6 +70,7 @@ void Gyro::calculate_IMU_error()
         // Sum all readings
         *GyroErrorXP = *GyroErrorXP + (GyroZ / 32.75);
         c++;
+
     }
 
     // Divide the sum by ERRORINTER to get the error value

@@ -66,7 +66,7 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
 }
 
 // update the output variable
-// update the angle and use it with pid
+// update the angle and use it with PID
 void Motor::updateOutput()
 {
 
@@ -98,7 +98,8 @@ void Motor::tunning(int16_t leftSpeed, int16_t rightSpeed)
     pid.SetTunings(kp, ki, kd);
 }
 
-bool Motor::setPidConstToEeprom(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward)
+// store the pid_const in EEPROM
+bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward)
 {
     pid_const.KP_FOWARD = kpForward;
     pid_const.KD_FOWARD = kdForward;
@@ -108,12 +109,13 @@ bool Motor::setPidConstToEeprom(double kpForward, double kiForward, double kdFor
     pid_const.KD_RATE = kdRate;
     pid_const.SET_TIME_FORWARD = setTimeForward;
 
-    return eeprom_write_struct(ADDRESS, pid_const);
+    return EEPROM_write_struct(ADDRESS, pid_const);
 }
 
-bool Motor::getPidConstFromEerprom()
+// get the pid_const from EEPROM
+bool Motor::getPIDConstFromEEPROM()
 {
-    return eeprom_read_struct(ADDRESS, pid_const);
+    return EEPROM_read_struct(ADDRESS, pid_const);
 }
 
 void pulse(int pulsetime, int time)
