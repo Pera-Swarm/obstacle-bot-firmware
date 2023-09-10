@@ -18,7 +18,6 @@ void Gyro::updateGyro()
     float AvgGyroZ = 0;
     for (int i = 0; i < AVGINTER; i++)
     {
-
         Wire.beginTransmission(MPU);
         Wire.write(0x43); // Gyro data first register address 0x43
         Wire.endTransmission(false);
@@ -70,6 +69,7 @@ void Gyro::calculate_IMU_error()
         // Sum all readings
         *GyroErrorXP = *GyroErrorXP + (GyroZ / 32.75);
         c++;
+
     }
 
     // Divide the sum by ERRORINTER to get the error value

@@ -117,22 +117,3 @@ bool Motor::getPidConstFromEerprom()
 {
     return eeprom_read_struct(ADDRESS, pid_const);
 }
-
-void pulse(int pulsetime, int time)
-{
-    digitalWrite(ML_A1, HIGH);
-    digitalWrite(ML_A2, LOW);
-    digitalWrite(MR_A1, HIGH);
-    digitalWrite(MR_A2, LOW);
-
-    for (int i = 0; i < time; i++)
-    {
-        digitalWrite(EN_L, HIGH);
-        digitalWrite(EN_R, HIGH);
-        delayMicroseconds(pulsetime / 10);
-
-        digitalWrite(EN_L, LOW);
-        digitalWrite(EN_R, LOW);
-        delayMicroseconds(pulsetime * 9 / 10);
-    }
-}
