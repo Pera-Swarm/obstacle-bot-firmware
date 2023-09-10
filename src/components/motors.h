@@ -36,10 +36,10 @@ public:
     void updateOutput();                                 // update to output respect to the angle error and const
     void tunning(int16_t leftSpeed, int16_t rightSpeed); // tune the Kp, KI and Kd
 
-    void turnright();                                    // turn 90 degrees to the right
+    void turnright(); // turn 90 degrees to the right
 
-    bool setPidConstToEeprom(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward); // update the pid const in eeprom
-    bool getPidConstFromEerprom();                                                                                                                   // get the pid const from eeprom
+    bool setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward); // update the pid const in eeprom
+    bool getPIDConstFromEEPROM();                                                                                                                    // get the pid const from eeprom
 
 private:
     PID_CONST pid_const; // values instance
@@ -48,7 +48,6 @@ private:
     double setPoint, input, output;
 
     PID pid = PID(&input, &output, &setPoint, pid_const.KP_FOWARD, pid_const.KI_FOWARD, pid_const.KD_FOWARD, DIRECT); // PID instance for the motors
-
 };
 
 void pulse(int pulsetime, int time);
