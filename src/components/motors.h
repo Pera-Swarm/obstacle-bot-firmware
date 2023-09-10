@@ -4,7 +4,7 @@
 #include "define.h"
 
 // starting address of EEPROM
-#define ADDRESS 0
+#define ADDRESS 1
 
 // constants for PID
 struct PID_CONST

@@ -1,23 +1,18 @@
 #include "define.h"
 
+// id of the bot
+// TODO: Store this in the EEPROM of the microcontroller
+String myID = "1";
+
 // create Motor instance
 Motor motor;
 
-const int MPU = 0x68; // MPU6050 I2C address
-float angle;          // Gyro angle
-float GyroErrorX;     // Gyro error
-
+float angle; // Gyro angle
 // Gyro configuration
-Gyro gyro(MPU, &angle, &GyroErrorX);
+Gyro gyro(0x68, &angle);
 
 const float turningThresh = 0.15; // threshold to stop turning
 const double distThresh = 20;     // threshold to stop moving
-
-bool idflag = false;
-String id = "";
-double arr[3]{};   // arr to hold startAngle, travelDis, endAngle
-int idx = 0;       // index to track the arr index
-bool good = false; // bool to check the correct id
 
 // json decoded
 double startAngle, endAngle, travelDis;
@@ -29,15 +24,6 @@ bool newData = false;
 // PID configuration
 PID pid(&Input, &Output, &Setpoint, 16, 0, 0.23, DIRECT);
 
-// id of the bot
-// TODO: Store this in the EEPROM of the microcontroller
-String myID = "1";
-
-// creating software serial object
-
-// variables to hold temp data
-String reciveStr = "";
-
 bool turningDone = false; // flag true if tuning is done
 bool movingDone = false;  // flag true if robot at the destination
 double prvstartAngle = 0; // vaiable used to track start angle changes
@@ -47,60 +33,8 @@ int tcount = 0;
 double dirCorrection = -1;
 double prevDist = 0;
 
-void dataDecoder(char c)
-{
-    LED(4);        // red
-    if (c == '\n') // if the endline char
-    {
-        idflag = true; // start to read the id
-        good = false;  // id is not good
-        idx = 0;       // reset the index
-    }
-    else
-    {
-        if (c == ',') // if comma found
-        {
-            if (good) // if id is good
-            {
-
-                arr[idx] = +id.toDouble(); // update the arr
-                if (idx == 2)
-                {
-                    newData = true; // set the newdata flag
-                    tcount = 0;     // when tcount < delay_constant the motor PID will start
-
-                    //          Serial.println("data recieved");
-                    startAngle = arr[0]; // do what you want
-                    endAngle = arr[2];
-                    travelDis = arr[1];
-                    //          Serial.println("data:" + String(st  artAngle) + " , " + String(endAngle) + " , " + String(travelDis) + ", " + String(angle));
-                }
-                idx = (idx + 1) % 3; // increment the index
-            }
-
-            if (idflag) // if id is getting
-            {
-                if (id == myID)
-                {
-                    LED(1);      // blue
-                    good = true; // id is good
-                    delay(20);
-                    LED(0); // blue
-                }
-            }
-
-            id = "";        // reset the id
-            idflag = false; // id reading done`
-        }
-        else
-            id += c; // append char to the id
-    }
-
-    if (Serial.available() > 0)
-    {
-        dataDecoder(Serial.read());
-    }
-}
+// HC-12 comunication config
+HC12 hc12(&startAngle, &endAngle, &travelDis, &newData, &tcount, myID);
 
 void turn()
 {
@@ -116,7 +50,7 @@ void turn()
         if (Serial.available() > 0)
         {
             // parsing the json string
-            dataDecoder(Serial.read());
+            hc12.dataDecoder(Serial.read());
         }
 
         if (prvstartAngle != startAngle) // if there any changes in startAngle, set the current angle to zero and set the set point
@@ -150,7 +84,7 @@ void algorithm()
 {
     if (Serial.available() > 0)
     {
-        dataDecoder(Serial.read()); // parsing the json string
+        hc12.dataDecoder(Serial.read()); // parsing the json string
         LED(0);
     }
 
@@ -192,14 +126,14 @@ void algorithm()
 
 void setup()
 {
+    // begining the serial commiunication
+    Serial.begin(9600);
+
     pid.SetOutputLimits(-255, 255); // limits of the PID output
     pid.SetSampleTime(20);          // refresh rate of the PID
     pid.SetMode(AUTOMATIC);
 
     motor.setup_motors();
-
-    // begining the serial commiunication
-    Serial.begin(9600);
 
     Setpoint = 0;
 
