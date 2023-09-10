@@ -11,10 +11,10 @@ void Motor::setup_motors()
     pid.SetMode(AUTOMATIC);
 
     // set the eerpom
-    setPidConstToEeprom(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
+    setPIDConstToEEPROM(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
 
     // update the pid values from eeprom
-    getPidConstFromEerprom();
+    getPIDConstFromEEPROM();
 
     pinMode(EN_R, OUTPUT);
     pinMode(EN_L, OUTPUT);
@@ -152,11 +152,12 @@ void Motor::turnright()
     while (output != 0)
     {
 
-        if(setPoint-startangle<1.0 && setPoint-startangle>1.0){
+        if (setPoint - startangle < 1.0 && setPoint - startangle > 1.0)
+        {
             ML(0);
             MR(0);
             break;
-        }   
+        }
 
         gyro.updateGyro();
         input = (double)gyro.getAngle();
@@ -164,8 +165,6 @@ void Motor::turnright()
         pid.Compute();
 
         ML(output);
-        MR(- output);
-        
+        MR(-output);
     }
-    
 }
