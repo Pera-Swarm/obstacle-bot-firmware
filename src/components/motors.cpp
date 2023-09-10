@@ -10,11 +10,11 @@ void Motor::setup_motors()
     pid.SetSampleTime(pid_const.SET_TIME_FORWARD); // refresh rate of the PID
     pid.SetMode(AUTOMATIC);
 
-    // set the eerpom
-    setPidConstToEeprom(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
+    // set the EEPROM
+    setPIDConstToEEPROM(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
 
-    // update the pid values from eeprom
-    getPidConstFromEerprom();
+    // update the PID values from EEPROM
+    getPIDConstFromEEPROM();
 
     pinMode(EN_R, OUTPUT);
     pinMode(EN_L, OUTPUT);
@@ -65,8 +65,7 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
     MR(rightSpeed);
 }
 
-// update the output variable
-// update the angle and use it with pid
+// update the angle and use it with PID
 void Motor::updateOutput()
 {
 
@@ -99,7 +98,7 @@ void Motor::tunning(int16_t leftSpeed, int16_t rightSpeed)
 }
 
 // store the pid_const in EEPROM
-bool Motor::setPidConstToEeprom(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward)
+bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward)
 {
     pid_const.KP_FOWARD = kpForward;
     pid_const.KD_FOWARD = kdForward;
@@ -109,11 +108,30 @@ bool Motor::setPidConstToEeprom(double kpForward, double kiForward, double kdFor
     pid_const.KD_RATE = kdRate;
     pid_const.SET_TIME_FORWARD = setTimeForward;
 
-    return eeprom_write_struct(ADDRESS, pid_const);
+    return EEPROM_write_struct(ADDRESS, pid_const);
 }
 
 // get the pid_const from EEPROM
-bool Motor::getPidConstFromEerprom()
+bool Motor::getPIDConstFromEEPROM()
 {
-    return eeprom_read_struct(ADDRESS, pid_const);
+    return EEPROM_read_struct(ADDRESS, pid_const);
+}
+
+void pulse(int pulsetime, int time)
+{
+    digitalWrite(ML_A1, HIGH);
+    digitalWrite(ML_A2, LOW);
+    digitalWrite(MR_A1, HIGH);
+    digitalWrite(MR_A2, LOW);
+
+    for (int i = 0; i < time; i++)
+    {
+        digitalWrite(EN_L, HIGH);
+        digitalWrite(EN_R, HIGH);
+        delayMicroseconds(pulsetime / 10);
+
+        digitalWrite(EN_L, LOW);
+        digitalWrite(EN_R, LOW);
+        delayMicroseconds(pulsetime * 9 / 10);
+    }
 }
