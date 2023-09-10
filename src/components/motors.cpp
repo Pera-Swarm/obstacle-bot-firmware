@@ -6,9 +6,15 @@ Motor::Motor()
 
 void Motor::setup_motors()
 {
-    pid.SetOutputLimits(-255, 255);     // limits of the PID output
-    pid.SetSampleTime(SET_TIME_FOWARD); // refresh rate of the PID
+    pid.SetOutputLimits(-255, 255);                // limits of the PID output
+    pid.SetSampleTime(pid_const.SET_TIME_FORWARD); // refresh rate of the PID
     pid.SetMode(AUTOMATIC);
+
+    // set the eerpom
+    setPidConstToEeprom(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
+
+    // update the pid values from eeprom
+    getPidConstFromEerprom();
 
     pinMode(EN_R, OUTPUT);
     pinMode(EN_L, OUTPUT);
@@ -85,28 +91,29 @@ void Motor::tunning(int16_t leftSpeed, int16_t rightSpeed)
 {
 
     double avg = (leftSpeed + rightSpeed) / 2.0;
-    double kp = avg * KP_RATE + KP_FOWARD;
-    double ki = avg * KI_RATE + KI_FOWARD;
-    double kd = avg * KD_RATE + KD_FOWARD;
+    double kp = avg * pid_const.KP_RATE + pid_const.KP_FOWARD;
+    double ki = avg * pid_const.KI_RATE + pid_const.KI_FOWARD;
+    double kd = avg * pid_const.KD_RATE + pid_const.KD_FOWARD;
 
     pid.SetTunings(kp, ki, kd);
 }
 
-void pulse(int pulsetime, int time)
+// store the pid_const in EEPROM
+bool Motor::setPidConstToEeprom(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward)
 {
-    digitalWrite(ML_A1, HIGH);
-    digitalWrite(ML_A2, LOW);
-    digitalWrite(MR_A1, HIGH);
-    digitalWrite(MR_A2, LOW);
+    pid_const.KP_FOWARD = kpForward;
+    pid_const.KD_FOWARD = kdForward;
+    pid_const.KI_FOWARD = kiForward;
+    pid_const.KP_RATE = kpRate;
+    pid_const.KI_RATE = kiRate;
+    pid_const.KD_RATE = kdRate;
+    pid_const.SET_TIME_FORWARD = setTimeForward;
 
-    for (int i = 0; i < time; i++)
-    {
-        digitalWrite(EN_L, HIGH);
-        digitalWrite(EN_R, HIGH);
-        delayMicroseconds(pulsetime / 10);
+    return eeprom_write_struct(ADDRESS, pid_const);
+}
 
-        digitalWrite(EN_L, LOW);
-        digitalWrite(EN_R, LOW);
-        delayMicroseconds(pulsetime * 9 / 10);
-    }
+// get the pid_const from EEPROM
+bool Motor::getPidConstFromEerprom()
+{
+    return eeprom_read_struct(ADDRESS, pid_const);
 }

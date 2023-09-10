@@ -16,8 +16,8 @@ void Gyro::updateGyro()
 
     // get the angle as a avg value
     float AvgGyroZ = 0;
-    for (int i=0; i<AVGINTER;i++){
-
+    for (int i = 0; i < AVGINTER; i++)
+    {
         Wire.beginTransmission(MPU);
         Wire.write(0x43); // Gyro data first register address 0x43
         Wire.endTransmission(false);
@@ -28,16 +28,14 @@ void Gyro::updateGyro()
         GyroZ = (Wire.read() << 8 | Wire.read()) / 32.75;
 
         AvgGyroZ += GyroZ;
-
     }
     // to get the avg value
-    GyroZ = AvgGyroZ/AVGINTER;
+    GyroZ = AvgGyroZ / AVGINTER;
 
-    GyroZ = GyroZ - *GyroErrorXP ; // GyroErrorX; // GyroErrorX ~(-0.56)
+    GyroZ = GyroZ - *GyroErrorXP; // GyroErrorX; // GyroErrorX ~(-0.56)
 
     // deg/s * s = deg
-    *angleP  = *angleP + GyroZ * elapsedTime;
-
+    *angleP = *angleP + GyroZ * elapsedTime;
 }
 
 void Gyro::calculate_IMU_error()
