@@ -20,8 +20,8 @@ void HC12::listen()
         char c = Serial.read();
         if (c == '\n')
             break;
-        reciveData += c;
-        Serial.print(c);
+        reciveData = c;
+        Serial.println(c);
     }
 }
 
