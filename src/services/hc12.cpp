@@ -16,7 +16,12 @@ void HC12::listen()
 
     while (Serial.available())
     {
-        reciveData += Serial.read();
+        LED(COLOR_BLUE);
+        char c = Serial.read();
+        if (c == '\n')
+            break;
+        reciveData += c;
+        Serial.print(c);
     }
 }
 

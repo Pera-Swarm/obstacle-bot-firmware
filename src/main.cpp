@@ -147,18 +147,37 @@ void setup()
 void loop()
 {
     // Serial.println("Loop");
-    unsigned long startTime = millis();
-    while ((millis() - startTime) < 3000)
+    // unsigned long startTime = millis();
+    // while ((millis() - startTime) < 3000)
+    // {
+    //     motor.motorWrite(80, 80);
+    //     delay(10);
+    // }
+
+    // startTime = millis();
+
+    // while ((millis() - startTime) < 3000)
+    // {
+    //     motor.motorWrite(-80, -80);
+    //     delay(10);
+    // }
+
+    hc12.listen();
+
+    LED(COLOR_RED);
+
+    if (hc12.getReceivedData() != "")
     {
-        motor.motorWrite(80, 80);
-        delay(10);
+        LED(4);
+        LED(COLOR_BLUE);
     }
 
-    startTime = millis();
-
-    while ((millis() - startTime) < 3000)
+    if (hc12.getReceivedData() == "w")
     {
-        motor.motorWrite(-80, -80);
-        delay(10);
+        motor.motorWrite(80, 80);
+    }
+    else if (hc12.getReceivedData() == "s")
+    {
+        motor.motorWrite(0, 0);
     }
 }
