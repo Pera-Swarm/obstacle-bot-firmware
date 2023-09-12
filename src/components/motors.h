@@ -4,7 +4,7 @@
 #include "define.h"
 
 // starting address of EEPROM
-#define ADDRESS 0
+#define ADDRESS 1
 
 // constants for PID
 struct PID_CONST
@@ -36,10 +36,14 @@ public:
     void updateOutput();                                 // update to output respect to the angle error and const
     void tunning(int16_t leftSpeed, int16_t rightSpeed); // tune the Kp, KI and Kd
 
-    void turnright(); // turn 90 degrees to the right
+    bool setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward); // update the PID const in EEPROM
+    bool getPIDConstFromEEPROM();
 
-    bool setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward); // update the pid const in eeprom
-    bool getPIDConstFromEEPROM();                                                                                                                    // get the pid const from eeprom
+    void updateSetPoint(); // get the PID const from EEPROM
+    void setGoingStraight(bool goingStraight);
+
+    void stop();
+    void turnright(); // turn 90 degrees to the right
 
 private:
     PID_CONST pid_const; // values instance

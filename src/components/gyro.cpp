@@ -1,9 +1,8 @@
 #include "gyro.h"
 
-Gyro::Gyro(int MPU, float *angle, float *GyroErrorX)
+Gyro::Gyro(int MPU, float *angle)
 {
     this->MPU = MPU;
-    this->GyroErrorXP = GyroErrorX;
     this->angleP = angle;
 }
 
@@ -33,7 +32,7 @@ void Gyro::updateGyro()
     // to get the avg value
     GyroZ = AvgGyroZ / AVGINTER;
 
-    GyroZ = GyroZ - *GyroErrorXP; // GyroErrorX; // GyroErrorX ~(-0.56)
+    GyroZ = GyroZ - GyroErrorXP; // GyroErrorX; // GyroErrorX ~(-0.56)
 
     // deg/s * s = deg
     *angleP = *angleP + GyroZ * elapsedTime;
@@ -56,6 +55,7 @@ void Gyro::calculate_IMU_error()
 
     // initialize c to 0
     int c = 0;
+    GyroErrorXP = 0;
     // Read gyro values 200 times
     while (c < ERRORINTER)
     {
@@ -68,13 +68,12 @@ void Gyro::calculate_IMU_error()
         GyroZ = Wire.read() << 8 | Wire.read();
 
         // Sum all readings
-        *GyroErrorXP = *GyroErrorXP + (GyroZ / 32.75);
+        GyroErrorXP = GyroErrorXP + (GyroZ / 32.75);
         c++;
-
     }
 
     // Divide the sum by ERRORINTER to get the error value
-    *GyroErrorXP = *GyroErrorXP / ERRORINTER;
+    GyroErrorXP = GyroErrorXP / ERRORINTER;
 
     // Print the error values on the Serial Monitor
     //  Serial.print("GyroErrorZ: ");
