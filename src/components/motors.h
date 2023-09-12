@@ -43,6 +43,7 @@ public:
     void setGoingStraight(bool goingStraight);
 
     void stop();
+    void turnright(); // turn 90 degrees to the right
 
 private:
     PID_CONST pid_const; // values instance

@@ -10,10 +10,10 @@ void Motor::setup_motors()
     pid.SetSampleTime(pid_const.SET_TIME_FORWARD); // refresh rate of the PID
     pid.SetMode(AUTOMATIC);
 
-    // set the EEPROM
+    // set the eerpom
     setPIDConstToEEPROM(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
 
-    // update the PID values from EEPROM
+    // update the pid values from eeprom
     getPIDConstFromEEPROM();
 
     pinMode(EN_R, OUTPUT);
@@ -65,6 +65,7 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
     MR(rightSpeed);
 }
 
+// update the output variable
 // update the angle and use it with PID
 void Motor::updateOutput()
 {
@@ -150,5 +151,37 @@ void pulse(int pulsetime, int time)
         digitalWrite(EN_L, LOW);
         digitalWrite(EN_R, LOW);
         delayMicroseconds(pulsetime * 9 / 10);
+    }
+}
+
+void Motor::turnright()
+{
+    tunning(20, 20);
+    double startangle = (double)gyro.getAngle();
+
+    if (goingStraight)
+    {
+        gyro.updateGyro();
+        setPoint = startangle + 90;
+        goingStraight = false;
+    }
+
+    while (output != 0)
+    {
+
+        if (setPoint - startangle < 1.0 && setPoint - startangle > 1.0)
+        {
+            ML(0);
+            MR(0);
+            break;
+        }
+
+        gyro.updateGyro();
+        input = (double)gyro.getAngle();
+
+        pid.Compute();
+
+        ML(output);
+        MR(-output);
     }
 }
