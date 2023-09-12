@@ -134,6 +134,7 @@ void setup()
     pid.SetMode(AUTOMATIC);
 
     motor.setup_motors();
+    motor.stop();
 
     Setpoint = 0;
 
@@ -163,21 +164,16 @@ void loop()
     // }
 
     hc12.listen();
-
-    LED(COLOR_RED);
-
-    if (hc12.getReceivedData() != "")
-    {
-        LED(4);
-        LED(COLOR_BLUE);
-    }
+    delay(10);
 
     if (hc12.getReceivedData() == "w")
     {
         motor.motorWrite(80, 80);
+        LED(COLOR_RED);
     }
     else if (hc12.getReceivedData() == "s")
     {
-        motor.motorWrite(0, 0);
+        motor.stop();
+        LED(COLOR_BLUE);
     }
 }

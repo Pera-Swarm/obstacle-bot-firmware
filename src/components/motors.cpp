@@ -47,7 +47,7 @@ void Motor::MR(int16_t val)
 void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
 {
 
-    if (leftSpeed == rightSpeed)
+    if ((leftSpeed == rightSpeed) && (leftSpeed != 0))
     {
         tunning(leftSpeed, rightSpeed);
         updateOutput();
@@ -71,8 +71,7 @@ void Motor::updateOutput()
 
     if (!goingStraight)
     {
-        gyro.updateGyro();
-        setPoint = (double)gyro.getAngle();
+        updateSetPoint();
         goingStraight = true;
     }
     else
@@ -115,6 +114,24 @@ bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdFor
 bool Motor::getPIDConstFromEEPROM()
 {
     return EEPROM_read_struct(ADDRESS, pid_const);
+}
+
+void Motor::updateSetPoint()
+{
+    gyro.updateGyro();
+    setPoint = (double)gyro.getAngle();
+}
+
+void Motor::setGoingStraight(bool goingStraight)
+{
+    this->goingStraight = goingStraight;
+}
+
+void Motor::stop()
+{
+    ML(0);
+    MR(0);
+    setGoingStraight(false);
 }
 
 void pulse(int pulsetime, int time)

@@ -37,7 +37,12 @@ public:
     void tunning(int16_t leftSpeed, int16_t rightSpeed); // tune the Kp, KI and Kd
 
     bool setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward); // update the PID const in EEPROM
-    bool getPIDConstFromEEPROM();                                                                                                                    // get the PID const from EEPROM
+    bool getPIDConstFromEEPROM();
+
+    void updateSetPoint(); // get the PID const from EEPROM
+    void setGoingStraight(bool goingStraight);
+
+    void stop();
 
 private:
     PID_CONST pid_const; // values instance

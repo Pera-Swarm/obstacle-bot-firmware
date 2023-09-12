@@ -12,22 +12,19 @@ HC12::HC12(double *startAngle, double *endAngle, double *travelDis, bool *newDat
 
 void HC12::listen()
 {
-    reciveData = "";
 
     while (Serial.available())
     {
-        LED(COLOR_BLUE);
         char c = Serial.read();
         if (c == '\n')
             break;
         reciveData = c;
-        Serial.println(c);
     }
 }
 
 String HC12::getReceivedData()
 {
-    return reciveData;
+    return this->reciveData;
 }
 
 void HC12::dataDecoder(char c)
