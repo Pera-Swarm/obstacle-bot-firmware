@@ -143,11 +143,12 @@ void setup()
 
     intShow();
     Serial.println("Bot initiated");
+
+    motor.turnRight();
 }
 
 void loop()
 {
-    // Serial.println("Loop");
     // unsigned long startTime = millis();
     // while ((millis() - startTime) < 3000)
     // {
@@ -163,19 +164,17 @@ void loop()
     //     delay(10);
     // }
 
-    hc12.listen();
-    delay(10);
+    // hc12.listen();
+    // delay(10);
 
-    if (hc12.getReceivedData() == "w")
-    {
-        motor.motorWrite(80, 80);
-        LED(COLOR_RED);
-    }
-    else if (hc12.getReceivedData() == "s")
-    {
-        motor.stop();
-        LED(COLOR_BLUE);
-    }
-
-    
+    // if (hc12.getReceivedData() == "w")
+    // {
+    //     motor.motorWrite(80, 80);
+    //     LED(COLOR_RED);
+    // }
+    // else if (hc12.getReceivedData() == "s")
+    // {
+    //     motor.stop();
+    //     LED(COLOR_BLUE);
+    // }
 }

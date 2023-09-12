@@ -82,5 +82,11 @@ void Gyro::calculate_IMU_error()
 
 float Gyro::getAngle()
 {
+    // return radToDegree(*angleP);
     return *angleP;
 }
+
+// double radToDegree(double rads)
+// {
+//     return (float)(rads * 180 / PI);
+// }

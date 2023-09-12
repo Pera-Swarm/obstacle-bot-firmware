@@ -58,7 +58,7 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
     }
     else
     {
-        goingStraight = false;
+        motorState = RANDOM;
     }
 
     ML(leftSpeed);
@@ -70,13 +70,13 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
 void Motor::updateOutput()
 {
 
-    if (!goingStraight)
+    if (motorState != GOING_STRAIGHT)
     {
         updateSetPoint();
-        goingStraight = true;
+        motorState = GOING_STRAIGHT;
     }
     else
-        goingStraight = true;
+        motorState = GOING_STRAIGHT;
 
     gyro.updateGyro();
     input = (double)gyro.getAngle();
@@ -123,16 +123,16 @@ void Motor::updateSetPoint()
     setPoint = (double)gyro.getAngle();
 }
 
-void Motor::setGoingStraight(bool goingStraight)
+void Motor::setState(int state)
 {
-    this->goingStraight = goingStraight;
+    this->motorState = state;
 }
 
 void Motor::stop()
 {
     ML(0);
     MR(0);
-    setGoingStraight(false);
+    setState(STOP);
 }
 
 void pulse(int pulsetime, int time)
@@ -154,34 +154,51 @@ void pulse(int pulsetime, int time)
     }
 }
 
-void Motor::turnright()
+void Motor::turnRight()
 {
     tunning(20, 20);
     double startangle = (double)gyro.getAngle();
 
-    if (goingStraight)
+    if (motorState != TURNING)
     {
         gyro.updateGyro();
         setPoint = startangle + 90;
-        goingStraight = false;
+        motorState = TURNING;
     }
 
-    while (output != 0)
+    double err = setPoint - startangle;
+
+    Serial.print(startangle);
+    Serial.print(" | ");
+    Serial.print(setPoint);
+    Serial.print(" | ");
+    Serial.println(err);
+
+    while ((err > 5.0) || (err < -5.0))
     {
-
-        if (setPoint - startangle < 1.0 && setPoint - startangle > 1.0)
-        {
-            ML(0);
-            MR(0);
-            break;
-        }
-
         gyro.updateGyro();
         input = (double)gyro.getAngle();
 
+        err = setPoint - input;
+
+        Serial.print(err);
+        Serial.print(" | ");
+
+        Serial.print(input);
+        Serial.print(" | ");
+
+        Serial.print(setPoint);
+        Serial.print(" | ");
+
         pid.Compute();
 
-        ML(output);
-        MR(-output);
+        Serial.println(output);
+
+        // ML(-50 - output);
+        // MR(50 + output);
+
+        delay(10);
     }
+
+    stop();
 }

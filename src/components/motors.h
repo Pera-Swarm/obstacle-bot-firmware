@@ -6,6 +6,12 @@
 // starting address of EEPROM
 #define ADDRESS 1
 
+// states of the bot
+#define STOP 0
+#define GOING_STRAIGHT 1
+#define TURNING 2
+#define RANDOM 3
+
 // constants for PID
 struct PID_CONST
 {
@@ -40,15 +46,15 @@ public:
     bool getPIDConstFromEEPROM();
 
     void updateSetPoint(); // get the PID const from EEPROM
-    void setGoingStraight(bool goingStraight);
+    void setState(int state);
 
     void stop();
-    void turnright(); // turn 90 degrees to the right
+    void turnRight(); // turn 90 degrees to the right
 
 private:
     PID_CONST pid_const; // values instance
 
-    bool goingStraight = false; // check if the bot is going staight forward
+    int motorState = STOP;
     double setPoint, input, output;
 
     PID pid = PID(&input, &output, &setPoint, pid_const.KP_FOWARD, pid_const.KI_FOWARD, pid_const.KD_FOWARD, DIRECT); // PID instance for the motors
