@@ -154,61 +154,64 @@ void pulse(int pulsetime, int time)
     }
 }
 
-void Motor::turnRight()
+void Motor::turn90DegRight()
 {
-    tunning(10, 10);
-    double startangle = (double)gyro.getAngle();
-
     if (motorState != TURNING)
     {
-        gyro.updateGyro();
-        setPoint = startangle + 45;
+        setPoint = setPoint + ANGLE_90;
         motorState = TURNING;
     }
 
-    double err = setPoint - startangle;
-
-    Serial.print(startangle);
-    Serial.print(" | ");
-    Serial.print(setPoint);
-    Serial.print(" | ");
-    Serial.println(err);
-
-    int speed;
-    while ((err > 1.0) || (err < -1.0))
+    if (motorState == TURNING)
     {
         gyro.updateGyro();
-        input = (double)gyro.getAngle();
+        double startangle = (double)gyro.getAngle();
+        double err = setPoint - startangle;
 
-        err = setPoint - input;
-
-        Serial.print(err);
-        Serial.print(" | ");
-
-        Serial.print(input);
-        Serial.print(" | ");
-
-        Serial.print(setPoint);
-        Serial.print(" | ");
-
-        pid.Compute();
-
-        Serial.println(output);
-
-        if ((err >= 10) || (err < -10))
+        if ((err > 1.0) || (err < -1.0))
         {
-            speed = 50;
+            input = startangle;
+            tunning(10, 10);
+            pid.Compute();
+
+            ML((err >= -1.0) ? -TURING_SPEED : TURING_SPEED_REVERSE - output);
+            MR((err >= -1.0) ? TURING_SPEED : -TURING_SPEED_REVERSE + output);
         }
         else
         {
-            speed = 40;
+            motorState = STOP;
+            stop();
         }
+    }
+}
 
-        ML((err >= -0.5) ? -speed : 30 - output);
-        MR((err >= -0.5) ? speed : -30 + output);
-
-        delay(10);
+void Motor::turn90DegLeft()
+{
+    if (motorState != TURNING)
+    {
+        setPoint = setPoint - ANGLE_90;
+        motorState = TURNING;
     }
 
-    stop();
+    if (motorState == TURNING)
+    {
+        gyro.updateGyro();
+        double startangle = (double)gyro.getAngle();
+        double err = startangle - setPoint;
+
+        if ((err > 1.0) || (err < -1.0))
+        {
+            input = startangle;
+            tunning(10, 10);
+            pid.Compute();
+
+            ML((err >= -1.0) ? TURING_SPEED : -TURING_SPEED_REVERSE - output);
+            MR((err >= -1.0) ? -TURING_SPEED : TURING_SPEED_REVERSE + output);
+        }
+        else
+        {
+            motorState = STOP;
+            stop();
+        }
+    }
 }

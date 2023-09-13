@@ -29,6 +29,6 @@ private:
     int c = 0;                                    // temp
 };
 
-// double radToDegree(double rads);
+double radToDegree(double rads);
 
 #endif

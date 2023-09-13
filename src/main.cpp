@@ -143,13 +143,17 @@ void setup()
 
     intShow();
     Serial.println("Bot initiated");
+
+    motor.updateSetPoint();
+    motor.turn90DegLeft();
 }
 
 void loop()
 {
-    motor.turnRight();
-    motor.setState(STOP);
-    delay(1000);
+    if (motor.motorState == TURNING)
+        motor.turn90DegLeft();
+
+    delay(10);
     // unsigned long startTime = millis();
     // while ((millis() - startTime) < 3000)
     // {

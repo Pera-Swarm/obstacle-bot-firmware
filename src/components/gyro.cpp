@@ -86,7 +86,7 @@ float Gyro::getAngle()
     return *angleP;
 }
 
-// double radToDegree(double rads)
-// {
-//     return (float)(rads * 180 / PI);
-// }
+double radToDegree(double rads)
+{
+    return (float)(rads * 180 / PI);
+}

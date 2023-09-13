@@ -12,6 +12,10 @@
 #define TURNING 2
 #define RANDOM 3
 
+#define TURING_SPEED 70
+#define TURING_SPEED_REVERSE 70
+#define ANGLE_90 90
+
 // constants for PID
 struct PID_CONST
 {
@@ -49,12 +53,14 @@ public:
     void setState(int state);
 
     void stop();
-    void turnRight(); // turn 90 degrees to the right
+    void turn90DegRight(); // turn 90 degrees to the right
+    void turn90DegLeft();  // turn 90 degrees to the right
+
+    int motorState = STOP;
 
 private:
     PID_CONST pid_const; // values instance
 
-    int motorState = STOP;
     double setPoint, input, output;
 
     PID pid = PID(&input, &output, &setPoint, pid_const.KP_FOWARD, pid_const.KI_FOWARD, pid_const.KD_FOWARD, DIRECT); // PID instance for the motors
