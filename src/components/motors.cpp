@@ -156,13 +156,13 @@ void pulse(int pulsetime, int time)
 
 void Motor::turnRight()
 {
-    tunning(20, 20);
+    tunning(10, 10);
     double startangle = (double)gyro.getAngle();
 
     if (motorState != TURNING)
     {
         gyro.updateGyro();
-        setPoint = startangle + 90;
+        setPoint = startangle + 45;
         motorState = TURNING;
     }
 
@@ -174,7 +174,8 @@ void Motor::turnRight()
     Serial.print(" | ");
     Serial.println(err);
 
-    while ((err > 5.0) || (err < -5.0))
+    int speed;
+    while ((err > 1.0) || (err < -1.0))
     {
         gyro.updateGyro();
         input = (double)gyro.getAngle();
@@ -194,8 +195,17 @@ void Motor::turnRight()
 
         Serial.println(output);
 
-        // ML(-50 - output);
-        // MR(50 + output);
+        if ((err >= 10) || (err < -10))
+        {
+            speed = 50;
+        }
+        else
+        {
+            speed = 40;
+        }
+
+        ML((err >= -0.5) ? -speed : 30 - output);
+        MR((err >= -0.5) ? speed : -30 + output);
 
         delay(10);
     }
