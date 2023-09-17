@@ -4,7 +4,13 @@
 #include "define.h"
 
 // starting address of EEPROM
-#define ADDRESS 0
+#define ADDRESS 1
+
+// states of the bot
+#define STOP 0
+#define GOING_STRAIGHT 1
+#define TURNING 2
+#define RANDOM 3
 
 // constants for PID
 struct PID_CONST
@@ -19,6 +25,10 @@ struct PID_CONST
     double KD_RATE = 0.005;
 
     int SET_TIME_FORWARD = 20;
+
+    int TURING_SPEED = 70;
+    int TURING_SPEED_REVERSE = 70;
+    int ANGLE_90 = 90;
 };
 
 // motor class that contains basic functionality for the motors
@@ -36,13 +46,21 @@ public:
     void updateOutput();                                 // update to output respect to the angle error and const
     void tunning(int16_t leftSpeed, int16_t rightSpeed); // tune the Kp, KI and Kd
 
-    bool setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward); // update the PID const in EEPROM
-    bool getPIDConstFromEEPROM();                                                                                                                    // get the PID const from EEPROM
+    bool setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward, int turningSpeed, int turningSpeedRes, int angle); // update the PID const in EEPROM
+    bool getPIDConstFromEEPROM();
+
+    void updateSetPoint(); // get the PID const from EEPROM
+    void setState(int state);
+
+    void stop();
+    void turn90DegRight(); // turn 90 degrees to the right
+    void turn90DegLeft();  // turn 90 degrees to the right
+
+    int motorState = STOP;
 
 private:
     PID_CONST pid_const; // values instance
 
-    bool goingStraight = false; // check if the bot is going staight forward
     double setPoint, input, output;
 
     PID pid = PID(&input, &output, &setPoint, pid_const.KP_FOWARD, pid_const.KI_FOWARD, pid_const.KD_FOWARD, DIRECT); // PID instance for the motors

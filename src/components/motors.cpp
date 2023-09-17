@@ -10,10 +10,10 @@ void Motor::setup_motors()
     pid.SetSampleTime(pid_const.SET_TIME_FORWARD); // refresh rate of the PID
     pid.SetMode(AUTOMATIC);
 
-    // set the EEPROM
-    setPIDConstToEEPROM(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
+    // set the eerpom
+    setPIDConstToEEPROM(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20, 70, 70, 90);
 
-    // update the PID values from EEPROM
+    // update the pid values from eeprom
     getPIDConstFromEEPROM();
 
     pinMode(EN_R, OUTPUT);
@@ -47,7 +47,7 @@ void Motor::MR(int16_t val)
 void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
 {
 
-    if (leftSpeed == rightSpeed)
+    if ((leftSpeed == rightSpeed) && (leftSpeed != 0))
     {
         tunning(leftSpeed, rightSpeed);
         updateOutput();
@@ -58,25 +58,25 @@ void Motor::motorWrite(int16_t leftSpeed, int16_t rightSpeed)
     }
     else
     {
-        goingStraight = false;
+        motorState = RANDOM;
     }
 
     ML(leftSpeed);
     MR(rightSpeed);
 }
 
+// update the output variable
 // update the angle and use it with PID
 void Motor::updateOutput()
 {
 
-    if (!goingStraight)
+    if (motorState != GOING_STRAIGHT)
     {
-        gyro.updateGyro();
-        setPoint = (double)gyro.getAngle();
-        goingStraight = true;
+        updateSetPoint();
+        motorState = GOING_STRAIGHT;
     }
     else
-        goingStraight = true;
+        motorState = GOING_STRAIGHT;
 
     gyro.updateGyro();
     input = (double)gyro.getAngle();
@@ -98,7 +98,7 @@ void Motor::tunning(int16_t leftSpeed, int16_t rightSpeed)
 }
 
 // store the pid_const in EEPROM
-bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward)
+bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward, int turningSpeed, int turningSpeedRes, int angle)
 {
     pid_const.KP_FOWARD = kpForward;
     pid_const.KD_FOWARD = kdForward;
@@ -107,6 +107,9 @@ bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdFor
     pid_const.KI_RATE = kiRate;
     pid_const.KD_RATE = kdRate;
     pid_const.SET_TIME_FORWARD = setTimeForward;
+    pid_const.TURING_SPEED = turningSpeed;
+    pid_const.TURING_SPEED_REVERSE = turningSpeedRes;
+    pid_const.ANGLE_90 = angle;
 
     return EEPROM_write_struct(ADDRESS, pid_const);
 }
@@ -115,6 +118,24 @@ bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdFor
 bool Motor::getPIDConstFromEEPROM()
 {
     return EEPROM_read_struct(ADDRESS, pid_const);
+}
+
+void Motor::updateSetPoint()
+{
+    gyro.updateGyro();
+    setPoint = (double)gyro.getAngle();
+}
+
+void Motor::setState(int state)
+{
+    this->motorState = state;
+}
+
+void Motor::stop()
+{
+    ML(0);
+    MR(0);
+    setState(STOP);
 }
 
 void pulse(int pulsetime, int time)
@@ -133,5 +154,67 @@ void pulse(int pulsetime, int time)
         digitalWrite(EN_L, LOW);
         digitalWrite(EN_R, LOW);
         delayMicroseconds(pulsetime * 9 / 10);
+    }
+}
+
+void Motor::turn90DegLeft()
+{
+    if (motorState != TURNING)
+    {
+        setPoint = setPoint + pid_const.ANGLE_90;
+        motorState = TURNING;
+    }
+
+    if (motorState == TURNING)
+    {
+        gyro.updateGyro();
+        double startangle = (double)gyro.getAngle();
+        double err = setPoint - startangle;
+
+        if ((err > 1.0) || (err < -1.0))
+        {
+            input = startangle;
+            tunning(pid_const.TURING_SPEED, pid_const.TURING_SPEED);
+            pid.Compute();
+
+            ML((err >= -1.0) ? -pid_const.TURING_SPEED : pid_const.TURING_SPEED_REVERSE - output);
+            MR((err >= -1.0) ? pid_const.TURING_SPEED : -pid_const.TURING_SPEED_REVERSE + output);
+        }
+        else
+        {
+            motorState = STOP;
+            stop();
+        }
+    }
+}
+
+void Motor::turn90DegRight()
+{
+    if (motorState != TURNING)
+    {
+        setPoint = setPoint - pid_const.ANGLE_90;
+        motorState = TURNING;
+    }
+
+    if (motorState == TURNING)
+    {
+        gyro.updateGyro();
+        double startangle = (double)gyro.getAngle();
+        double err = startangle - setPoint;
+
+        if ((err > 1.0) || (err < -1.0))
+        {
+            input = startangle;
+            tunning(pid_const.TURING_SPEED, pid_const.TURING_SPEED);
+            pid.Compute();
+
+            ML((err >= -1.0) ? pid_const.TURING_SPEED : -pid_const.TURING_SPEED_REVERSE - output);
+            MR((err >= -1.0) ? -pid_const.TURING_SPEED : pid_const.TURING_SPEED_REVERSE + output);
+        }
+        else
+        {
+            motorState = STOP;
+            stop();
+        }
     }
 }
