@@ -12,10 +12,6 @@
 #define TURNING 2
 #define RANDOM 3
 
-#define TURING_SPEED 70
-#define TURING_SPEED_REVERSE 70
-#define ANGLE_90 90
-
 // constants for PID
 struct PID_CONST
 {
@@ -29,6 +25,10 @@ struct PID_CONST
     double KD_RATE = 0.005;
 
     int SET_TIME_FORWARD = 20;
+
+    int TURING_SPEED = 70;
+    int TURING_SPEED_REVERSE = 70;
+    int ANGLE_90 = 90;
 };
 
 // motor class that contains basic functionality for the motors
@@ -46,7 +46,7 @@ public:
     void updateOutput();                                 // update to output respect to the angle error and const
     void tunning(int16_t leftSpeed, int16_t rightSpeed); // tune the Kp, KI and Kd
 
-    bool setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward); // update the PID const in EEPROM
+    bool setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward, int turningSpeed, int turningSpeedRes, int angle); // update the PID const in EEPROM
     bool getPIDConstFromEEPROM();
 
     void updateSetPoint(); // get the PID const from EEPROM

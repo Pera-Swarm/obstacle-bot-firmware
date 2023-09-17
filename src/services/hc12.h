@@ -7,7 +7,7 @@
 class HC12
 {
 public:
-    HC12(double *startAngle, double *endAngle, double *travelDis, bool *newData, int *tcount, String myID);
+    HC12(double *startAngle, double *endAngle, double *travelDis, bool *newData, int *tcount, int myID);
 
     void listen();
     String getReceivedData();
@@ -15,7 +15,7 @@ public:
     void dataDecoder(char c);
 
 private:
-    String myID = "1";
+    int myID = 1;
 
     String reciveData = "";
 

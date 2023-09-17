@@ -11,7 +11,7 @@ void Motor::setup_motors()
     pid.SetMode(AUTOMATIC);
 
     // set the eerpom
-    setPIDConstToEEPROM(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20);
+    setPIDConstToEEPROM(0.5, 0.005, 0.005, 0.02, 0.005, 0.005, 20, 70, 70, 90);
 
     // update the pid values from eeprom
     getPIDConstFromEEPROM();
@@ -98,7 +98,7 @@ void Motor::tunning(int16_t leftSpeed, int16_t rightSpeed)
 }
 
 // store the pid_const in EEPROM
-bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward)
+bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdForward, double kpRate, double kiRate, double kdRate, int setTimeForward, int turningSpeed, int turningSpeedRes, int angle)
 {
     pid_const.KP_FOWARD = kpForward;
     pid_const.KD_FOWARD = kdForward;
@@ -107,6 +107,9 @@ bool Motor::setPIDConstToEEPROM(double kpForward, double kiForward, double kdFor
     pid_const.KI_RATE = kiRate;
     pid_const.KD_RATE = kdRate;
     pid_const.SET_TIME_FORWARD = setTimeForward;
+    pid_const.TURING_SPEED = turningSpeed;
+    pid_const.TURING_SPEED_REVERSE = turningSpeedRes;
+    pid_const.ANGLE_90 = angle;
 
     return EEPROM_write_struct(ADDRESS, pid_const);
 }
@@ -154,11 +157,11 @@ void pulse(int pulsetime, int time)
     }
 }
 
-void Motor::turn90DegRight()
+void Motor::turn90DegLeft()
 {
     if (motorState != TURNING)
     {
-        setPoint = setPoint + ANGLE_90;
+        setPoint = setPoint + pid_const.ANGLE_90;
         motorState = TURNING;
     }
 
@@ -171,11 +174,11 @@ void Motor::turn90DegRight()
         if ((err > 1.0) || (err < -1.0))
         {
             input = startangle;
-            tunning(10, 10);
+            tunning(pid_const.TURING_SPEED, pid_const.TURING_SPEED);
             pid.Compute();
 
-            ML((err >= -1.0) ? -TURING_SPEED : TURING_SPEED_REVERSE - output);
-            MR((err >= -1.0) ? TURING_SPEED : -TURING_SPEED_REVERSE + output);
+            ML((err >= -1.0) ? -pid_const.TURING_SPEED : pid_const.TURING_SPEED_REVERSE - output);
+            MR((err >= -1.0) ? pid_const.TURING_SPEED : -pid_const.TURING_SPEED_REVERSE + output);
         }
         else
         {
@@ -185,11 +188,11 @@ void Motor::turn90DegRight()
     }
 }
 
-void Motor::turn90DegLeft()
+void Motor::turn90DegRight()
 {
     if (motorState != TURNING)
     {
-        setPoint = setPoint - ANGLE_90;
+        setPoint = setPoint - pid_const.ANGLE_90;
         motorState = TURNING;
     }
 
@@ -202,11 +205,11 @@ void Motor::turn90DegLeft()
         if ((err > 1.0) || (err < -1.0))
         {
             input = startangle;
-            tunning(10, 10);
+            tunning(pid_const.TURING_SPEED, pid_const.TURING_SPEED);
             pid.Compute();
 
-            ML((err >= -1.0) ? TURING_SPEED : -TURING_SPEED_REVERSE - output);
-            MR((err >= -1.0) ? -TURING_SPEED : TURING_SPEED_REVERSE + output);
+            ML((err >= -1.0) ? pid_const.TURING_SPEED : -pid_const.TURING_SPEED_REVERSE - output);
+            MR((err >= -1.0) ? -pid_const.TURING_SPEED : pid_const.TURING_SPEED_REVERSE + output);
         }
         else
         {

@@ -1,6 +1,6 @@
 #include "hc12.h"
 
-HC12::HC12(double *startAngle, double *endAngle, double *travelDis, bool *newData, int *tcount, String myID)
+HC12::HC12(double *startAngle, double *endAngle, double *travelDis, bool *newData, int *tcount, int myID)
 {
     this->startAngle = startAngle;
     this->endAngle = endAngle;
@@ -60,7 +60,7 @@ void HC12::dataDecoder(char c)
 
             if (idflag) // if id is getting
             {
-                if (id == myID)
+                if (id == String(myID))
                 {
                     LED(1);      // blue
                     good = true; // id is good

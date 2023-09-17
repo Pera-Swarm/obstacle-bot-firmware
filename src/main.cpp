@@ -1,8 +1,10 @@
 #include "define.h"
 
+#define ADDRESS_MYID 0
+
 // id of the bot
 // TODO: Store this in the EEPROM of the microcontroller
-String myID = "1";
+int myID = 1;
 
 // create Motor instance
 Motor motor;
@@ -126,6 +128,9 @@ void algorithm()
 
 void setup()
 {
+    // EEPROM_write_int(ADDRESS, 1);
+    // myID = EEPROM_read_int(ADDRESS);
+
     // begining the serial commiunication
     Serial.begin(9600);
 
@@ -145,13 +150,13 @@ void setup()
     Serial.println("Bot initiated");
 
     motor.updateSetPoint();
-    motor.turn90DegLeft();
+    motor.turn90DegRight();
 }
 
 void loop()
 {
     if (motor.motorState == TURNING)
-        motor.turn90DegLeft();
+        motor.turn90DegRight();
 
     delay(10);
     // unsigned long startTime = millis();
