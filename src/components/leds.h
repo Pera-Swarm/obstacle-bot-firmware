@@ -1,5 +1,3 @@
-
-#include <Arduino.h>
 #include "define.h"
 
 #define COLOR_NO 0
